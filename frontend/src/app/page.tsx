@@ -1,103 +1,136 @@
-import Image from "next/image";
+import Link from "next/link";
+
+const pillars = [
+  {
+    number: "01",
+    title: "See the signal",
+    text: "Bring together river gauges, rainfall, weather, and community observations without losing their provenance.",
+  },
+  {
+    number: "02",
+    title: "Predict the shift",
+    text: "A local forecasting pipeline turns noisy readings into an uncertainty-aware view of what comes next.",
+  },
+  {
+    number: "03",
+    title: "Move sooner",
+    text: "Risk is translated into a clear brief so people can act before a warning becomes an emergency.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main>
+      <nav className="nav shell">
+        <Link className="brand" href="/">
+          <span className="brand-mark">H</span>
+          <span>Hydro<span>Sentinel</span></span>
+        </Link>
+        <div className="nav-links">
+          <a href="#why">Why it matters</a>
+          <a href="#how">How it works</a>
+          <Link className="nav-cta" href="/featured">Open command center <span>↗</span></Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </nav>
+
+      <section className="hero shell">
+        <div className="hero-copy">
+          <div className="eyebrow"><span className="pulse-dot" /> EARLY WARNING, REIMAGINED</div>
+          <h1>Give communities<br /><em>more time.</em></h1>
+          <p className="hero-lede">
+            HydroSentinel turns fragmented water data into an explainable flood
+            outlook — so the people closest to the risk can make their next
+            decision with confidence.
+          </p>
+          <div className="hero-actions">
+            <Link className="button button-primary" href="/featured">Explore live forecast <span>→</span></Link>
+            <a className="text-link" href="#why">See the thinking <span>↓</span></a>
+          </div>
+          <div className="hero-note">
+            <span className="meta-spark">✦</span>
+            Built with Meta Model API · Muse Spark · SAM 3.1 · Muse Image
+          </div>
+        </div>
+        <div className="hero-visual" aria-label="Illustration of a river monitoring network">
+          <div className="orb orb-one" />
+          <div className="orb orb-two" />
+          <div className="river-line" />
+          <div className="terrain terrain-a" />
+          <div className="terrain terrain-b" />
+          <div className="map-label label-top">NORTH BASIN <span>●</span></div>
+          <div className="map-label label-bottom">SOUTH FORK <span>●</span></div>
+          <div className="station-card">
+            <div className="station-head"><span className="status-live" /> LIVE STATION <span className="station-time">09:42:18</span></div>
+            <strong>Riverside North</strong>
+            <div className="station-level"><span>2.84</span> m <b>↑ 0.18m</b></div>
+            <div className="mini-chart"><i /><i /><i /><i /><i /><i /><i /><i /><i /></div>
+            <div className="station-foot"><span>Forecast in 6h</span><strong>3.21m</strong></div>
+          </div>
+          <div className="signal signal-one"><span /></div>
+          <div className="signal signal-two"><span /></div>
+          <div className="visual-caption">ONE NETWORK. A CLEARER NEXT MOVE.</div>
+        </div>
+      </section>
+
+      <section className="trust-bar">
+        <div className="shell trust-inner">
+          <span>FROM RAW READINGS</span><i>→</i><span>TO SHARED UNDERSTANDING</span>
+          <div className="trust-rule" />
+          <span className="trust-meta"><span className="meta-spark">✦</span> Designed for the last mile</span>
+        </div>
+      </section>
+
+      <section className="section shell" id="why">
+        <div className="section-kicker">THE CASE FOR CLARITY</div>
+        <div className="split-heading">
+          <h2>When the water<br /><em>moves,</em> context matters.</h2>
+          <p>Flood response is not a single-model problem. It is a handoff problem: from a sensor to a forecaster, from a forecast to a family, from uncertainty to a decision.</p>
+        </div>
+        <div className="pillar-grid">
+          {pillars.map((pillar) => (
+            <article className="pillar" key={pillar.number}>
+              <span className="pillar-number">{pillar.number}</span>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.text}</p>
+              <span className="pillar-arrow">↗</span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="feature-band" id="how">
+        <div className="shell feature-inner">
+          <div>
+            <div className="section-kicker light">THE HYDROSENTINEL LOOP</div>
+            <h2>Intelligence that<br /><em>earns trust.</em></h2>
+            <p>Every alert keeps a trail: the data, the model, the uncertainty, and the reason it matters now.</p>
+            <Link className="button button-light" href="/featured">See the command center <span>→</span></Link>
+          </div>
+          <div className="loop-diagram">
+            <div className="loop-node node-a"><span>01</span> Observe</div>
+            <div className="loop-node node-b"><span>02</span> Forecast</div>
+            <div className="loop-node node-c"><span>03</span> Explain</div>
+            <div className="loop-node node-d"><span>04</span> Act</div>
+            <div className="loop-core">H<span>↗</span></div>
+            <div className="loop-arc arc-a" /><div className="loop-arc arc-b" />
+          </div>
+        </div>
+      </section>
+
+      <section className="closing shell">
+        <div className="closing-mark">H</div>
+        <div>
+          <div className="section-kicker">THE FIRST STEP IS SEEING IT</div>
+          <h2>Let&apos;s make the<br /><em>next hour count.</em></h2>
+        </div>
+        <Link className="button button-primary" href="/featured">Enter HydroSentinel <span>↗</span></Link>
+      </section>
+
+      <footer className="footer shell">
+        <span>HydroSentinel / 2026</span>
+        <span>Built for a safer tomorrow.</span>
+        <span>Meta AI Developer Hackathon</span>
       </footer>
-    </div>
+    </main>
   );
 }

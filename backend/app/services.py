@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from .db import Dataset, Observation, Station, as_utc, utcnow
 from .forecasting.pipeline import InsufficientDataError, forecast_station
 from .forecasting.preprocessing import resample_hourly
-from .providers import open_meteo
+from .providers import open_meteo, uk_ea
 from .providers.base import StationMetadata
 from .providers.simulated import SimulatedProvider, demo_thresholds
 from .risk import Thresholds, assess
@@ -112,6 +112,95 @@ def seed_demo(session: Session, force: bool = False) -> Dataset | None:
     session.commit()
     clear_forecast_cache()
     return dataset
+
+
+def remove_simulated(session: Session) -> int:
+    """Drop the synthetic demo scenario (it can be re-added from Tools)."""
+    sim_ids = list(session.scalars(select(Station.id).where(Station.is_simulated)))
+    if not sim_ids:
+        return 0
+    session.execute(delete(Observation).where(Observation.station_id.in_(sim_ids)))
+    session.execute(delete(Station).where(Station.is_simulated))
+    session.execute(delete(Dataset).where(Dataset.is_simulated))
+    session.commit()
+    clear_forecast_cache()
+    return len(sim_ids)
+
+
+# ---------------------------------------------------------------- live sources
+
+EA_DATASET_NAME = "UK Environment Agency real-time river levels"
+_source_status: dict[str, dict] = {}
+_status_lock = threading.Lock()
+
+
+def _set_status(key: str, **fields) -> None:
+    with _status_lock:
+        _source_status[key] = {**_source_status.get(key, {}), **fields}
+
+
+def source_status() -> dict[str, dict]:
+    with _status_lock:
+        return {k: dict(v) for k, v in _source_status.items()}
+
+
+def sync_live_gauges(session: Session) -> dict:
+    """Fetch new EA readings (plus Open-Meteo rainfall) for every configured gauge.
+    Incremental: only readings newer than what is stored are requested. A failing
+    gauge keeps its stored data; its age then shows up in the risk assessment."""
+    dataset = session.scalar(select(Dataset).where(Dataset.source_type == "provider", Dataset.name == EA_DATASET_NAME))
+    if dataset is None:
+        dataset = Dataset(
+            name=EA_DATASET_NAME,
+            source_type="provider",
+            source_detail=f"Measured 15-minute river stage, Open Government Licence v3 ({uk_ea.SOURCE_URL}). "
+            "Rainfall column: Open-Meteo modelled hourly precipitation at the gauge.",
+            is_simulated=False,
+            source_timezone="UTC",
+            validation={},
+        )
+        session.add(dataset)
+        session.flush()
+
+    imported, errors = 0, {}
+    for gauge in uk_ea.GAUGES:
+        try:
+            station = session.get(Station, gauge.id)
+            if station is None:
+                thresholds, source = uk_ea.gauge_thresholds(gauge)
+                station = ensure_station(session, uk_ea.metadata(gauge), thresholds, False, source)
+                session.flush()
+            last = session.scalar(
+                select(func.max(Observation.observed_at)).where(
+                    Observation.station_id == gauge.id, Observation.water_level_m.is_not(None)
+                )
+            )
+            # Re-request a small overlap so late-arriving rainfall hours are filled in.
+            since = as_utc(last) - pd.Timedelta(hours=3) if last else uk_ea.default_since()
+            frame = uk_ea.fetch_observations(gauge, since)
+            imported += upsert_observations(session, frame, dataset)
+        except Exception as exc:  # one bad gauge must not stop the rest
+            errors[gauge.id] = str(exc)
+
+    period = session.execute(
+        select(func.min(Observation.observed_at), func.max(Observation.observed_at), func.count()).where(
+            Observation.dataset_id == dataset.id
+        )
+    ).one()
+    dataset.period_start, dataset.period_end = period[0], period[1]
+    dataset.rows_imported = dataset.rows_received = period[2]
+    session.commit()
+    if imported:
+        clear_forecast_cache()
+    _set_status(
+        "gauges",
+        name="UK Environment Agency (measured)",
+        last_sync=utcnow().isoformat(),
+        ok=len(errors) < len(uk_ea.GAUGES),
+        rows_imported=imported,
+        errors=errors,
+    )
+    return {"rows_imported": imported, "errors": errors}
 
 
 # ---------------------------------------------------------------- loading

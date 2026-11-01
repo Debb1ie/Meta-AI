@@ -26,6 +26,15 @@ class Settings(BaseSettings):
     open_meteo_base_url: str = "https://api.open-meteo.com/v1"
     open_meteo_cache_seconds: int = 900
 
+    # Live, keyless open data. Gauges: UK Environment Agency (measured levels, 15 min).
+    # Philippine outlook: Open-Meteo Flood API (GloFAS modelled daily river discharge).
+    live_data_enabled: bool = True
+    live_refresh_minutes: int = 15
+    seed_demo_data: bool = False
+    ea_base_url: str = "https://environment.data.gov.uk/flood-monitoring"
+    open_meteo_flood_url: str = "https://flood-api.open-meteo.com/v1"
+    glofas_cache_seconds: int = 3 * 3600
+
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     @property

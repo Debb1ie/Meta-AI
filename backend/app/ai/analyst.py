@@ -15,6 +15,7 @@ intervals) and UNCERTAINTY (interval width, model skill vs persistence, data age
 - Cite numbers with units and the station name. Say which horizon a prediction refers to.
 - If a station's data is marked simulated, say so plainly in data_limitations.
 - Thresholds are project settings, not official warning levels; never describe them as official.
+- philippine_river_outlook is MODELLED daily river discharge (GloFAS, m³/s), not gauge readings and not PAGASA warnings. Report it in m³/s, call it a model outlook, and never convert it to water levels.
 - Recommended actions must be proportionate to the risk level and grounded in the evidence. Defer to \
 local authorities for evacuation orders. Do not give guarantees.
 - If the question cannot be answered from the context, say so in the summary and leave lists empty \
@@ -137,8 +138,28 @@ def compact_station_context(report: dict, detailed: bool) -> dict:
     return ctx
 
 
-def build_context(reports: list[dict], focus_station_id: str | None) -> dict:
+def compact_outlook(outlook: dict | None) -> list[dict] | None:
+    if not outlook:
+        return None
+    return [
+        {
+            "river": r["name"],
+            "region": r["region"],
+            "flow_today_m3s": r["current_m3s"],
+            "trend_3d": r["trend"],
+            "peak_next_7d": r["peak"],
+            "wetter_runs_upper_m3s": r["upper_m3s"],
+            "level": r["level"],
+            "alert_levels_m3s": r["thresholds_m3s"],
+        }
+        for r in outlook["rivers"]
+    ]
+
+
+def build_context(reports: list[dict], focus_station_id: str | None, outlook: dict | None = None) -> dict:
     return {
+        "philippine_river_outlook": compact_outlook(outlook),
+        "philippine_outlook_method": outlook.get("method") if outlook else None,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "method_notes": [
             "Forecast models: persistence, damped trend, gradient boosting; selected per horizon on a calibration window.",

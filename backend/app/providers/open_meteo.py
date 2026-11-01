@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timezone
 
 import httpx
+import pandas as pd
 
 from ..config import get_settings
 
@@ -84,3 +85,26 @@ def fetch_forecast(latitude: float, longitude: float) -> dict:
     }
     _cache[key] = (time.time(), result)
     return result
+
+
+def fetch_rain_history(latitude: float, longitude: float, past_days: int) -> pd.DataFrame:
+    """Hourly precipitation (mm) for the past `past_days` days, up to now. Modelled
+    (Open-Meteo best-match analysis), used as the rainfall column for live gauges."""
+    settings = get_settings()
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "hourly": "precipitation",
+        "past_days": max(1, min(92, past_days)),
+        "forecast_days": 1,
+        "timezone": "UTC",
+    }
+    try:
+        resp = httpx.get(f"{settings.open_meteo_base_url}/forecast", params=params, timeout=30)
+        resp.raise_for_status()
+        hourly = resp.json().get("hourly", {})
+    except (httpx.HTTPError, ValueError) as exc:
+        raise WeatherUnavailable(f"Open-Meteo request failed: {exc}") from exc
+    frame = pd.DataFrame({"observed_at": pd.to_datetime(hourly.get("time", []), utc=True), "rainfall_mm": hourly.get("precipitation", [])})
+    frame["rainfall_mm"] = pd.to_numeric(frame["rainfall_mm"], errors="coerce")
+    return frame[frame["observed_at"] <= pd.Timestamp.now(tz="UTC")].dropna()
