@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[oc]
+.venv/
+.pytest_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+
+# Secrets (keep .env.example)
+.env
+.env.local
+!.env.example
+
+.DS_Store
