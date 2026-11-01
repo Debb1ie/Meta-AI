@@ -1,0 +1,23 @@
+[project]
+name = "hydrosentinel-backend"
+version = "0.1.0"
+description = "HydroSentinel AI — flood forecasting and early-warning backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.0",
+    "httpx>=0.28.1",
+    "meta-sam-parser>=0.1.0",
+    "numpy>=2.5.4",
+    "pandas>=3.1.0",
+    "pillow>=13.0.0",
+    "pydantic-settings>=2.16.2",
+    "python-multipart>=0.0.32",
+    "scikit-learn>=1.9.1",
+    "sqlalchemy>=2.1.6",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
