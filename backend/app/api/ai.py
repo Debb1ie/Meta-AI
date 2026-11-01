@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..ai import analyst, meta_client, segmentation
+from ..providers import glofas
 from ..config import get_settings
 from ..db import Station, get_session
 from .stations import all_reports
@@ -36,7 +37,11 @@ async def ask_analyst(body: AnalystRequest, session: Session = Depends(get_sessi
     if body.station_id and session.get(Station, body.station_id) is None:
         raise HTTPException(404, f"Station '{body.station_id}' not found.")
     reports = await run_in_threadpool(all_reports, session)
-    context = analyst.build_context(reports, body.station_id)
+    try:
+        outlook = await run_in_threadpool(glofas.outlook)
+    except glofas.OutlookUnavailable:
+        outlook = None
+    context = analyst.build_context(reports, body.station_id, outlook)
     try:
         result = await run_in_threadpool(analyst.ask, body.question, context, body.history)
     except meta_client.MetaAPIError as exc:
