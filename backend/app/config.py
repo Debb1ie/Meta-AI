@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     glofas_cache_seconds: int = 3 * 3600
 
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    # Optional regex for extra origins, e.g. Vercel preview URLs: https://hydrosentinel.*\.vercel\.app
+    cors_origin_regex: str = ""
 
     @property
     def meta_configured(self) -> bool:
