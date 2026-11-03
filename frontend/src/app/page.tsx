@@ -21,10 +21,10 @@ const pillars = [
 ];
 
 const loop = [
-  { n: "01", label: "Observe" },
-  { n: "02", label: "Forecast" },
-  { n: "03", label: "Verify" },
-  { n: "04", label: "Alert" },
+  { n: "01", label: "Observe", icon: Icon.stations },
+  { n: "02", label: "Forecast", icon: Icon.activity },
+  { n: "03", label: "Verify", icon: Icon.shield },
+  { n: "04", label: "Alert", icon: Icon.ask },
 ];
 
 export default function Home() {
@@ -94,13 +94,28 @@ export default function Home() {
             <p>Every alert keeps a trail: the data, the model, the uncertainty, the evidence it cites, and the reason it matters now.</p>
             <Link className="button button-light" href="/featured?tab=agent">Watch the agent work {Icon.arrow}</Link>
           </div>
-          <div className="loop-diagram" data-reveal>
+          <div className="orb-scene" data-reveal role="img" aria-label="The HydroSentinel loop: observe, forecast, verify, alert">
+            <svg className="orb-path" viewBox="0 0 400 400" aria-hidden><circle cx="200" cy="200" r="175" /></svg>
+            <div className="orb-glow" aria-hidden />
+            <div className="orb-halo" aria-hidden />
+            <div className="orb-shadow" aria-hidden />
+            <div className="orb-space" aria-hidden>
+              <i className="orb-ring r1"><b /></i>
+              <i className="orb-ring r2"><b /></i>
+              <i className="orb-ring r3"><b /></i>
+              <div className="orb">
+                <div className="orb-water"><i /><i /></div>
+                <span className="orb-h">H</span>
+                <span className="orb-shine" />
+              </div>
+            </div>
             {loop.map((node, i) => (
-              <div key={node.n} className={`loop-node node-${"abcd"[i]}`}><span>{node.n}</span> {node.label}</div>
+              <div key={node.n} className={`orb-node n${i}`} style={{ "--k": i } as React.CSSProperties}>
+                <span>{node.icon}</span>
+                <b>{node.n}</b>
+                {node.label}
+              </div>
             ))}
-            <div className="loop-core">H<span className="lp-core-icon">{Icon.spark}</span></div>
-            <div className="loop-arc arc-a" /><div className="loop-arc arc-b" />
-            <div className="loop-orbit" aria-hidden><i /></div>
           </div>
         </div>
       </section>
