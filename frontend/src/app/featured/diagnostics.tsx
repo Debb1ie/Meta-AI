@@ -105,7 +105,7 @@ function BacktestChart({ points, horizon }: { points: BacktestPoint[]; horizon: 
         <polygon points={band} className="ios-flow-band" />
         <polyline points={line("persistence_m")} className="ios-bt-persist" />
         <polyline points={line("actual_m")} className="ios-bt-actual" />
-        <polyline points={line("predicted_m")} className="ios-flow-past" />
+        <polyline points={line("predicted_m")} className="ios-flow-past" pathLength={1} />
       </svg>
       <div className="ios-legend-row">
         <span><i className="ios-key is-actual" />Actual</span>

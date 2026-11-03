@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CountUp } from "../landing";
 import { AgentCard, AgentView, useAgent } from "./agent";
 import { AskView } from "./ask";
 import { StationTechnical } from "./diagnostics";
@@ -548,6 +549,8 @@ function TodayView(props: {
   return (
     <div className="ios-today">
       <section className={`ios-hero lvl-${offline ? "offline" : overview ? topLevel : "loading"}`}>
+        <svg className="ios-hero-waves is-back" viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden><path d="M0 30 C 100 10, 200 50, 300 30 S 500 10, 600 30 S 800 50, 900 30 S 1100 10, 1200 30 V 80 H 0 Z" /></svg>
+        <svg className="ios-hero-waves" viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden><path d="M0 30 C 100 10, 200 50, 300 30 S 500 10, 600 30 S 800 50, 900 30 S 1100 10, 1200 30 V 80 H 0 Z" /></svg>
         <div className="ios-hero-icon" aria-hidden>{offline ? Icon.offline : total ? Icon.alert : Icon.check}</div>
         <div className="ios-hero-text">
           <h2>{heroTitle}</h2>
@@ -662,7 +665,7 @@ function Tile(props: { icon?: React.ReactNode; label: string; value: number | nu
   return (
     <div className={`ios-tile ${props.emphasis ? "is-emphasis" : ""}`}>
       <span className="ios-with-icon">{props.icon}{props.label}</span>
-      {props.loading ? <i className="ios-skeleton" /> : <strong>{shown}{props.unit && shown !== "—" && <sup>{props.unit}</sup>}</strong>}
+      {props.loading ? <i className="ios-skeleton" /> : <strong><CountUp value={props.value} digits={props.digits ?? 0} />{props.unit && shown !== "—" && <sup>{props.unit}</sup>}</strong>}
       <small>{props.note}</small>
     </div>
   );

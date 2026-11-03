@@ -43,7 +43,7 @@ export default function RiverMap(props: { points: MapPoint[]; hazards?: MapHazar
             key={h.id}
             center={[h.lat, h.lon]}
             radius={16}
-            pathOptions={{ color: ALERT_COLOR[h.alert] ?? ALERT_COLOR.green, weight: 3, dashArray: "4 4", fillColor: ALERT_COLOR[h.alert] ?? ALERT_COLOR.green, fillOpacity: 0.12 }}
+            pathOptions={{ className: "ios-hz-ring", color: ALERT_COLOR[h.alert] ?? ALERT_COLOR.green, weight: 3, dashArray: "4 4", fillColor: ALERT_COLOR[h.alert] ?? ALERT_COLOR.green, fillOpacity: 0.12 }}
           >
             <Tooltip direction="top" offset={[0, -14]}>
               <strong>{h.title}</strong>
@@ -60,7 +60,7 @@ export default function RiverMap(props: { points: MapPoint[]; hazards?: MapHazar
               key={p.id}
               center={[p.lat, p.lon]}
               radius={selected ? 11 : 7}
-              pathOptions={{ color: selected ? "#10252a" : "#ffffff", weight: selected ? 3 : 2, fillColor: color, fillOpacity: 0.95 }}
+              pathOptions={{ className: "ios-pt", color: selected ? "#10252a" : "#ffffff", weight: selected ? 3 : 2, fillColor: color, fillOpacity: 0.95 }}
               eventHandlers={{ click: () => props.onSelect?.(p.id) }}
             >
               <Tooltip direction="top" offset={[0, -8]}>
