@@ -9,6 +9,8 @@ import pandas as pd
 LEVEL_BOUNDS_M = (-20.0, 200.0)
 RAIN_BOUNDS_MM_PER_H = (0.0, 400.0)
 MAX_INTERPOLATION_GAP_H = 3
+HAMPEL_WINDOW_H = 7
+HAMPEL_SIGMAS = 6.0
 FUTURE_TOLERANCE_MIN = 10  # observations cannot be from the future
 
 COLUMN_ALIASES = {
@@ -171,7 +173,7 @@ class ResampleSummary:
         return self.__dict__.copy()
 
 
-def remove_spikes(level: pd.Series, window: int = 7, n_sigmas: float = 6.0) -> tuple[pd.Series, int]:
+def remove_spikes(level: pd.Series, window: int = HAMPEL_WINDOW_H, n_sigmas: float = HAMPEL_SIGMAS) -> tuple[pd.Series, int]:
     """Hampel filter: drop isolated readings far from the rolling median. The high
     threshold is deliberate — genuine flood rises must survive."""
     med = level.rolling(window, center=True, min_periods=3).median()

@@ -27,6 +27,11 @@ LABELS = {"normal": "Normal", "advisory": "Advisory", "warning": "Warning", "cri
 # Exceedance percentiles of daily discharge: ~18, ~4 and ~0.7 days a year.
 PERCENTILES = {"advisory": 95.0, "warning": 99.0, "critical": 99.8}
 OUTLOOK_DAYS = 7
+HISTORY_DAYS = 30
+FORECAST_DAYS = 30
+CLIMATOLOGY_YEARS = 5
+TREND_LOOKBACK_DAYS = 3
+TREND_THRESHOLD = 0.15  # relative change that counts as rising or falling
 
 
 @dataclass(frozen=True)
@@ -88,7 +93,7 @@ def _climatology() -> list[dict]:
     if cached and time.time() - cached[0] < 24 * 3600:
         return cached[1]["rivers"]
     end = date.today() - timedelta(days=1)
-    rows = _fetch({"daily": "river_discharge", "start_date": (end - timedelta(days=5 * 365)).isoformat(), "end_date": end.isoformat()})
+    rows = _fetch({"daily": "river_discharge", "start_date": (end - timedelta(days=CLIMATOLOGY_YEARS * 365)).isoformat(), "end_date": end.isoformat()})
     result = []
     for item in rows:
         values = np.array([v for v in item["daily"]["river_discharge"] if v is not None], dtype=float)
@@ -129,12 +134,12 @@ def _assess(river: PHRiver, item: dict, thresholds: dict, today: str) -> dict:
     window = [p for p in series if today < p["date"] <= (date.fromisoformat(today) + timedelta(days=OUTLOOK_DAYS)).isoformat()]
     peak = max(window or [current], key=lambda p: p["discharge_m3s"])
     upper = max((p["p75_m3s"] or p["discharge_m3s"] for p in window), default=peak["discharge_m3s"])
-    three_days_ago = next((p for p in series if p["date"] == (date.fromisoformat(today) - timedelta(days=3)).isoformat()), None)
+    three_days_ago = next((p for p in series if p["date"] == (date.fromisoformat(today) - timedelta(days=TREND_LOOKBACK_DAYS)).isoformat()), None)
 
     level = max(_tier(current["discharge_m3s"], thresholds), _tier(peak["discharge_m3s"], thresholds), key=LEVELS.index)
     if three_days_ago and three_days_ago["discharge_m3s"] > 0:
         change = (current["discharge_m3s"] - three_days_ago["discharge_m3s"]) / three_days_ago["discharge_m3s"]
-        trend = "rising" if change > 0.15 else "falling" if change < -0.15 else "steady"
+        trend = "rising" if change > TREND_THRESHOLD else "falling" if change < -TREND_THRESHOLD else "steady"
     else:
         trend = "steady"
 
@@ -189,8 +194,8 @@ def outlook() -> dict:
             rows = _fetch(
                 {
                     "daily": "river_discharge,river_discharge_p25,river_discharge_p75",
-                    "past_days": 30,
-                    "forecast_days": 30,
+                    "past_days": HISTORY_DAYS,
+                    "forecast_days": FORECAST_DAYS,
                 }
             )
             today = date.today().isoformat()

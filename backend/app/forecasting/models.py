@@ -12,6 +12,7 @@ LEVEL_LAGS = (1, 2, 3, 6, 12, 24)
 RAIN_WINDOWS = (1, 3, 6, 12, 24, 48, 72)
 TREND_WINDOW_H = 3
 TREND_DAMPING = 0.85
+GBM_PARAMS = {"max_iter": 300, "learning_rate": 0.05, "max_leaf_nodes": 31, "min_samples_leaf": 20, "l2_regularization": 1.0}
 
 
 def build_features(hourly: pd.DataFrame) -> pd.DataFrame:
@@ -78,14 +79,7 @@ class GradientBoostingModel:
     def fit(self, features: pd.DataFrame, target_level: pd.Series, horizon: int) -> "GradientBoostingModel":
         self.columns = list(features.columns)
         delta = target_level.to_numpy() - features["level"].to_numpy()
-        self.model = HistGradientBoostingRegressor(
-            max_iter=300,
-            learning_rate=0.05,
-            max_leaf_nodes=31,
-            min_samples_leaf=20,
-            l2_regularization=1.0,
-            random_state=self.random_state,
-        )
+        self.model = HistGradientBoostingRegressor(**GBM_PARAMS, random_state=self.random_state)
         self.model.fit(features[self.columns], delta)
         return self
 

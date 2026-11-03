@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
 from .ai import agent
-from .api import ai, data, stations
+from .api import ai, data, research, stations
 from .config import get_settings
 from .db import SessionLocal, Station, init_db, utcnow
 from .providers import glofas
@@ -115,6 +115,7 @@ app.add_middleware(
 app.include_router(stations.router)
 app.include_router(data.router)
 app.include_router(ai.router)
+app.include_router(research.router)
 
 
 @app.get("/api/health")

@@ -18,6 +18,7 @@ from ..config import get_settings
 GDACS_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/EVENTS4APP"
 GDACS_SOURCE = "GDACS — Global Disaster Alert and Coordination System (UN OCHA / EC JRC)"
 PH_CENTER = (12.5, 122.5)
+AFFECTS_KM = 600  # within this distance an event is treated as affecting the Philippines
 NEAR_KM = 2500  # a typhoon within this distance can reach PAR (the PH area of responsibility) within days
 CACHE_SECONDS = 30 * 60
 
@@ -65,7 +66,7 @@ def _gdacs() -> list[dict]:
                 "latitude": lat,
                 "longitude": lon,
                 "distance_to_ph_km": round(distance),
-                "affects_ph": "Philippines" in country or distance < 600,
+                "affects_ph": "Philippines" in country or distance < AFFECTS_KM,
                 "near_ph": "Philippines" in country or distance < NEAR_KM,
                 "severity": str(sev.get("severitytext") or "")[:160] or None,
                 "from": p.get("fromdate"),
