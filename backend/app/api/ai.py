@@ -103,8 +103,18 @@ def run_agent() -> StreamingResponse:
     if not _agent_running.acquire(blocking=False):
         raise HTTPException(409, "The agent is already running. Its briefing will appear when it finishes.")
 
+    settings = get_settings()
+    reason = agent.budget_reason(settings.agent_cooldown_minutes, settings.agent_max_runs_per_day)
+
     def stream():
         try:
+            cached = agent.latest() if reason else None
+            if cached:
+                # Protect API credits: repeat clicks get the fresh cached briefing.
+                yield json.dumps({"type": "status", "text": reason}) + "\n"
+                verification = agent.verify(cached["briefing"], cached["evidence"])
+                yield json.dumps({"type": "final", **cached, "cached": True, "verification": verification}, default=str) + "\n"
+                return
             with SessionLocal() as session:
                 for event in agent.run(session):
                     yield json.dumps(event, default=str) + "\n"

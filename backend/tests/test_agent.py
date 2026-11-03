@@ -24,3 +24,18 @@ def test_verify_ignores_negative_signs_and_iso_timestamps():
     evidence = {"E1": {"result": {"rise_m_per_h": -0.11, "at": "2026-11-03T06:00:00Z"}}}
     v = verify(_briefing(("Falling 0.11 m/h as of 2026-11-03T06:00:00Z.", ["E1"])), evidence)
     assert v["score"] == 1.0
+
+
+def test_budget_guard_serves_fresh_briefing_and_caps_runs(monkeypatch):
+    import time
+    from datetime import datetime, timezone
+
+    from app.ai import agent
+
+    monkeypatch.setattr(agent, "_loaded", True)
+    monkeypatch.setattr(agent, "_latest", {"generated_at": datetime.now(timezone.utc).isoformat()})
+    monkeypatch.setattr(agent, "_run_times", [])
+    assert "still fresh" in agent.budget_reason(cooldown_minutes=10, max_runs_per_day=40)
+    assert agent.budget_reason(cooldown_minutes=0, max_runs_per_day=40) is None
+    monkeypatch.setattr(agent, "_run_times", [time.time()] * 40)
+    assert "Daily limit" in agent.budget_reason(cooldown_minutes=0, max_runs_per_day=40)

@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     glofas_cache_seconds: int = 3 * 3600
     # Run the flood-watch agent in the background this often (hours); 0 disables. Each run costs a few cents.
     agent_autorun_hours: float = 3.0
+    # Credit guards for manual runs: reuse a briefing younger than this, and cap paid runs per day.
+    agent_cooldown_minutes: float = 10.0
+    agent_max_runs_per_day: int = 40
 
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     # Optional regex for extra origins, e.g. Vercel preview URLs: https://hydrosentinel.*\.vercel\.app

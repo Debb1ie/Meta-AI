@@ -17,6 +17,7 @@ import threading
 import time
 from collections.abc import Iterator
 from datetime import datetime, timezone
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
@@ -107,11 +108,48 @@ TOOLS = [
 
 _latest_lock = threading.Lock()
 _latest: dict | None = None
+_loaded = False
+# The last briefing survives restarts and API outages, so the dashboard always has a real one to show.
+LATEST_PATH = Path(__file__).resolve().parents[2] / "data" / "latest_briefing.json"
+_run_times: list[float] = []
 
 
 def latest() -> dict | None:
+    global _latest, _loaded
     with _latest_lock:
+        if not _loaded:
+            _loaded = True
+            try:
+                _latest = json.loads(LATEST_PATH.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                _latest = None
         return _latest
+
+
+def _save(result: dict) -> None:
+    global _latest, _loaded
+    with _latest_lock:
+        _latest, _loaded = result, True
+    try:
+        LATEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+        LATEST_PATH.write_text(json.dumps(result, default=str), encoding="utf-8")
+    except OSError:
+        pass  # persistence is best-effort; the in-memory copy still serves
+
+
+def budget_reason(cooldown_minutes: float, max_runs_per_day: int) -> str | None:
+    """Why a new paid run should be skipped in favour of the cached briefing, or None to run."""
+    now = time.time()
+    last = latest()
+    if last and cooldown_minutes > 0:
+        age = now - datetime.fromisoformat(last["generated_at"]).timestamp()
+        if age < cooldown_minutes * 60:
+            return f"A briefing from {max(1, round(age / 60))} min ago is still fresh; showing it instead of a new run."
+    recent = [t for t in _run_times if now - t < 86400]
+    _run_times[:] = recent
+    if max_runs_per_day > 0 and len(recent) >= max_runs_per_day:
+        return f"Daily limit of {max_runs_per_day} agent runs reached; showing the latest briefing."
+    return None
 
 
 class Toolbox:
@@ -308,8 +346,8 @@ def verify(briefing: dict, evidence: dict[str, dict]) -> dict:
 
 def run(session: Session) -> Iterator[dict]:
     """Run the agent, yielding progress events; the last event is `final` or `error`."""
-    global _latest
     started = time.time()
+    _run_times.append(started)
     toolbox = Toolbox(session)
     evidence: dict[str, dict] = {}
     usage = {"prompt_tokens": 0, "completion_tokens": 0}
@@ -378,8 +416,7 @@ def run(session: Session) -> Iterator[dict]:
             "seconds": round(time.time() - started, 1),
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
-        with _latest_lock:
-            _latest = result
+        _save(result)
         yield {"type": "final", **result}
     except meta_client.MetaAPIError as exc:
         yield {"type": "error", "text": str(exc), "detail": exc.detail}
