@@ -80,6 +80,7 @@ const JUMP = [
   { label: "Ask", href: "/featured?tab=ask", icon: Icon.ask },
   { label: "Photo check", href: "/featured?tab=tools#tool-photo", icon: Icon.image },
   { label: "Posters", href: "/featured?tab=tools#tool-poster", icon: Icon.bag },
+  { label: "3D forecast", href: "/research", icon: Icon.map },
 ];
 
 export default function Home() {
@@ -94,6 +95,7 @@ export default function Home() {
           <a href="#impact">Who it helps</a>
           <a href="#meta">Meta AI</a>
           <a href="#try">Try it</a>
+          <Link href="/research">Research</Link>
           <Link className="nav-cta" href="/featured">Open command center {Icon.arrow}</Link>
         </div>
       </nav>

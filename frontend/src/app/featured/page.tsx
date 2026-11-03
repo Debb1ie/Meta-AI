@@ -315,6 +315,7 @@ export default function Featured() {
           <button className="ios-btn ios-rail-theme" onClick={cycleTheme} aria-label={`Appearance: ${theme}`} title="Appearance (T)">
             {theme === "light" ? Icon.sun : theme === "dark" ? Icon.moon : Icon.auto}
           </button>
+          <Link href="/research" className="ios-shortcut-hint" title="3D forecast layer and methodology">{Icon.map}<span>Research: 3D forecast</span></Link>
           <Link href="/" className="ios-home-btn" title="Back to home">{Icon.back}<span>Back to home</span></Link>
         </div>
       </aside>
@@ -484,6 +485,8 @@ const FEATURES: { tab: Tab; anchor?: string; icon: React.ReactNode; title: strin
   { tab: "tools", anchor: "tool-system", icon: Icon.server, title: "System & security", text: "Pipeline health, sync, API latency and admin access.", tag: "Ops" },
 ];
 
+const RESEARCH_CARD = { href: "/research", icon: Icon.map, title: "3D forecast & method", text: "A 3D heat layer of river flow and the full methodology.", tag: "Research" };
+
 /** One card per feature, so nothing has to be discovered by scrolling. */
 function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
   return (
@@ -503,6 +506,14 @@ function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
             <span className="ios-hub-tag">{f.tag}</span>
           </button>
         ))}
+        <Link className="ios-hub-card" href={RESEARCH_CARD.href}>
+          <span className="ios-hub-icon">{RESEARCH_CARD.icon}</span>
+          <span className="ios-hub-text">
+            <b>{RESEARCH_CARD.title}</b>
+            <small>{RESEARCH_CARD.text}</small>
+          </span>
+          <span className="ios-hub-tag">{RESEARCH_CARD.tag}</span>
+        </Link>
       </div>
     </section>
   );
