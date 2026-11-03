@@ -101,17 +101,43 @@ export const LEVEL_INFO: Record<string, { word: string; hint: string }> = {
   critical: { word: "Act now", hint: "Follow the local action plan." },
 };
 
-/** Fetch JSON from the backend; throws an Error carrying the backend's own message. */
+// Admin key for data-changing endpoints. Session storage only: it disappears when the tab closes.
+const ADMIN_KEY = "hs-admin-key";
+
+export function getAdminKey(): string {
+  try {
+    return sessionStorage.getItem(ADMIN_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function setAdminKey(value: string) {
+  try {
+    if (value) sessionStorage.setItem(ADMIN_KEY, value);
+    else sessionStorage.removeItem(ADMIN_KEY);
+  } catch {}
+}
+
+/** Fetch JSON from the backend; throws an Error carrying the backend's own message.
+    Non-GET requests carry the admin key when one is set for this session. */
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
+  const method = (init?.method ?? "GET").toUpperCase();
+  const key = method !== "GET" ? getAdminKey() : "";
+  const headers = new Headers(init?.headers);
+  if (key) headers.set("X-Admin-Token", key);
   try {
-    response = await fetch(`${API_URL}${path}`, init);
+    response = await fetch(`${API_URL}${path}`, { ...init, headers });
   } catch {
     throw new Error(`Can't reach the server at ${API_URL}. Is the backend running?`);
   }
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const d = data?.detail;
+    if (response.status === 401) throw new Error("This action needs the admin key. Add it in Tools → System.");
+    if (response.status === 403) throw new Error(typeof d === "string" ? d : "Admin actions are disabled on this server.");
+    if (response.status === 429) throw new Error(typeof d === "string" ? d : "Too many requests. Please wait a moment.");
     const msg = typeof d === "string" ? d : d?.message ?? `Request failed (${response.status}).`;
     const extra = Array.isArray(d?.stations) ? ` ${d.stations.join(", ")}` : Array.isArray(d?.errors) ? ` ${d.errors.join(" ")}` : "";
     throw new Error(msg + extra);

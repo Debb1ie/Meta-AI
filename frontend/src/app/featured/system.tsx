@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { API_URL, AiStatus, Icon, SourceStatus, api, timeAgo } from "./shared";
+import { API_URL, AiStatus, Icon, SourceStatus, api, getAdminKey, setAdminKey, timeAgo } from "./shared";
 
 export const SHORTCUTS: [string, string][] = [
   ["1 – 6", "Switch section"],
@@ -53,6 +53,8 @@ export function SystemPanel({ aiStatus, sources, onSynced }: { aiStatus: AiStatu
   const [latency, setLatency] = useState<number | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [adminKey, setKeyState] = useState("");
+  const [keyDraft, setKeyDraft] = useState("");
   const [online, setOnline] = useState(true);
   const [swActive, setSwActive] = useState(false);
   const { canInstall, installed, install } = useInstallPrompt();
@@ -71,6 +73,7 @@ export function SystemPanel({ aiStatus, sources, onSynced }: { aiStatus: AiStatu
     ping();
     setOnline(navigator.onLine);
     setSwActive(!!navigator.serviceWorker?.controller);
+    setKeyState(getAdminKey());
   }, [ping]);
 
   const syncNow = async () => {
@@ -91,7 +94,7 @@ export function SystemPanel({ aiStatus, sources, onSynced }: { aiStatus: AiStatu
   const rows = Object.entries(sources);
 
   return (
-    <section className="ios-card ios-tool ios-tool-wide">
+    <section className="ios-card ios-tool ios-tool-wide" id="tool-system">
       <span className="ios-card-label">System</span>
       <h3>Data pipeline &amp; status</h3>
       <div className="ios-sys-grid">
@@ -128,6 +131,19 @@ export function SystemPanel({ aiStatus, sources, onSynced }: { aiStatus: AiStatu
         {installed && <span className="ios-tag is-live">Installed app</span>}
       </div>
       {message && <p className="ios-muted ios-small">{message}</p>}
+
+      <div className="ios-admin" id="admin">
+        <span className="ios-with-icon">{Icon.shield}<b>Admin access</b><span className={`ios-status-pill ${adminKey ? "is-ok" : "is-bad"}`}>{adminKey ? "Unlocked" : "Locked"}</span></span>
+        <p className="ios-muted ios-small">
+          Editing alert levels, importing data, adding demo stations and manual syncs need the admin key (Render → Environment →
+          ADMIN_TOKEN). It is kept only for this browser session. Everything else is public and read-only.
+        </p>
+        <form className="ios-form-row" onSubmit={(e) => { e.preventDefault(); setAdminKey(keyDraft.trim()); setKeyState(keyDraft.trim()); setKeyDraft(""); }}>
+          <input className="ios-input" type="password" autoComplete="off" placeholder={adminKey ? "Key saved for this session" : "Paste admin key"} value={keyDraft} onChange={(e) => setKeyDraft(e.target.value)} aria-label="Admin key" />
+          <button className="ios-primary ios-primary-inline" type="submit" disabled={!keyDraft.trim()}>UNLOCK</button>
+          {adminKey && <button className="ios-text-btn" type="button" onClick={() => { setAdminKey(""); setKeyState(""); }}>LOCK</button>}
+        </form>
+      </div>
 
       <div className="ios-sys-foot">
         <span className="ios-with-icon ios-muted">{Icon.keyboard}Keyboard shortcuts</span>
