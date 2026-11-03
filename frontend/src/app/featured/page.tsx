@@ -8,6 +8,7 @@ import { AskView } from "./ask";
 import { StationTechnical } from "./diagnostics";
 import { OutlookPanel, OutlookView, hazardPoints, outlookPoints } from "./outlook";
 import { ShortcutList } from "./system";
+import { LayersView } from "./layers";
 import { ToolsView } from "./tools";
 import {
   API_URL, AiStatus, Hazards, Icon, LEVEL_INFO, Outlook, Overview, SourceStatus, Sparkline, Station, Thresholds,
@@ -16,17 +17,20 @@ import {
 
 const RiverMap = dynamic(() => import("./map"), { ssr: false, loading: () => <div className="ios-map ios-skeleton" style={{ height: 280 }} /> });
 
-type Tab = "today" | "agent" | "stations" | "outlook" | "ask" | "tools";
+type Tab = "today" | "agent" | "stations" | "outlook" | "layers" | "ask" | "tools";
 type Theme = "system" | "light" | "dark";
 type Trend = "rising" | "falling" | "steady";
 
-const TABS: Tab[] = ["today", "agent", "stations", "outlook", "ask", "tools"];
-const TITLES: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Live gauges", outlook: "PH Outlook", ask: "Ask", tools: "Tools" };
+const TABS: Tab[] = ["today", "agent", "stations", "outlook", "layers", "ask", "tools"];
+const TITLES: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Live gauges", outlook: "PH Outlook", layers: "3D layers", ask: "Ask", tools: "Tools" };
+// Bottom tab bar on phones: seven tabs need short labels.
+const SHORT: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Gauges", outlook: "Outlook", layers: "3D", ask: "Ask", tools: "Tools" };
 const KICKERS: Record<Tab, string> = {
   today: "Live overview",
   agent: "Muse Spark agent with verified answers",
   stations: "Measured every 15 minutes",
   outlook: "Philippines, GloFAS model",
+  layers: "Terrain, rain and river flow, stacked",
   ask: "Analyst",
   tools: "Toolkit & system",
 };
@@ -204,7 +208,7 @@ export default function Featured() {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
       if (e.metaKey || e.ctrlKey || e.altKey || el.closest("input, textarea, select, [contenteditable]")) return;
-      if (e.key >= "1" && e.key <= "6") switchTab(TABS[Number(e.key) - 1]);
+      if (e.key >= "1" && e.key <= "7") switchTab(TABS[Number(e.key) - 1]);
       else if (e.key === "r" || e.key === "R") load();
       else if (e.key === "t" || e.key === "T") cycleTheme();
       else if (e.key === "?") setShowShortcuts((v) => !v);
@@ -274,6 +278,7 @@ export default function Featured() {
     agent: <>Flood-watch <em>agent.</em></>,
     stations: <>Live river <em>gauges.</em></>,
     outlook: <>Philippine river <em>outlook.</em></>,
+    layers: <>Flood risk in <em>layers.</em></>,
     ask: <>Ask <em>Muse Spark.</em></>,
     tools: <>Field <em>tools.</em></>,
   };
@@ -283,6 +288,7 @@ export default function Featured() {
     agent: "Investigates live data with tools, cites every claim, verifies its own numbers, and drafts alerts in five Philippine languages",
     stations: `${stations.length} gauges · UK Environment Agency real-time levels · sorted by urgency`,
     outlook: `${outlook?.rivers.length ?? 17} major basins · daily modelled river flow · 30-day forecast`,
+    layers: "Five live map layers over the Philippines, from terrain up to a combined flood-watch index. Orbit, peel layers apart and hover any point to read its value",
     ask: "Plain-language answers from Muse Spark, grounded in live readings and the PH outlook",
     tools: "Pipeline status, field photos, community illustrations and your own data",
   };
@@ -315,7 +321,7 @@ export default function Featured() {
           <button className="ios-btn ios-rail-theme" onClick={cycleTheme} aria-label={`Appearance: ${theme}`} title="Appearance (T)">
             {theme === "light" ? Icon.sun : theme === "dark" ? Icon.moon : Icon.auto}
           </button>
-          <Link href="/research" className="ios-shortcut-hint" title="3D forecast layer and methodology">{Icon.map}<span>Research: 3D forecast</span></Link>
+          <Link href="/research" className="ios-shortcut-hint" title="Forecasting method, parameters and live skill scores">{Icon.map}<span>Research &amp; methodology</span></Link>
           <Link href="/" className="ios-home-btn" title="Back to home">{Icon.back}<span>Back to home</span></Link>
         </div>
       </aside>
@@ -391,6 +397,7 @@ export default function Featured() {
           {tab === "outlook" && (
             <OutlookView outlook={outlook} error={outlookError} selectedId={riverId} dark={dark} hazards={hazards} onSelect={selectRiver} onAsk={askQuestion} />
           )}
+          {tab === "layers" && <LayersView outlook={outlook} error={outlookError} />}
           {tab === "agent" && <AgentView agent={agent} configured={aiStatus?.configured} />}
           {tab === "ask" && (
             <AskView stations={stations} aiStatus={aiStatus} contextId={askContext} setContextId={setAskContext} prefill={askPrefill} />
@@ -407,7 +414,7 @@ export default function Featured() {
               {t === "stations" && attention.length > 0 && <i className="ios-badge">{attention.length}</i>}
               {t === "outlook" && riversOnWatch.length > 0 && <i className="ios-badge">{riversOnWatch.length}</i>}
             </span>
-            {TITLES[t]}
+            {SHORT[t]}
           </button>
         ))}
       </nav>
@@ -477,6 +484,7 @@ function LevelMix({ stations, outlook }: { stations: Station[]; outlook: Outlook
 const FEATURES: { tab: Tab; anchor?: string; icon: React.ReactNode; title: string; text: string; tag: string }[] = [
   { tab: "agent", icon: Icon.agent, title: "Flood-watch agent", text: "Watch Muse Spark investigate, cite evidence and verify its numbers.", tag: "Muse Spark" },
   { tab: "outlook", icon: Icon.outlook, title: "Philippine outlook", text: "17 basins on a map with 30-day flow forecasts and alert levels.", tag: "GloFAS" },
+  { tab: "layers", icon: Icon.layers, title: "3D flood layers", text: "Terrain, rainfall and river flow stacked over the Philippines.", tag: "3D" },
   { tab: "stations", icon: Icon.stations, title: "Live gauges", text: "Measured levels, forecasts, backtests and model diagnostics.", tag: "Every 15 min" },
   { tab: "ask", icon: Icon.ask, title: "Ask Muse Spark", text: "Plain-language answers grounded in the live data.", tag: "Chat" },
   { tab: "tools", anchor: "tool-photo", icon: Icon.image, title: "Flood photo check", text: "Upload a field photo; SAM 3.1 outlines the floodwater.", tag: "SAM 3.1" },
@@ -485,7 +493,7 @@ const FEATURES: { tab: Tab; anchor?: string; icon: React.ReactNode; title: strin
   { tab: "tools", anchor: "tool-system", icon: Icon.server, title: "System & security", text: "Pipeline health, sync, API latency and admin access.", tag: "Ops" },
 ];
 
-const RESEARCH_CARD = { href: "/research", icon: Icon.map, title: "3D forecast & method", text: "A 3D heat layer of river flow and the full methodology.", tag: "Research" };
+const RESEARCH_CARD = { href: "/research", icon: Icon.map, title: "Research & method", text: "How the forecasts are built and scored, with live skill scores.", tag: "Research" };
 
 /** One card per feature, so nothing has to be discovered by scrolling. */
 function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
@@ -493,7 +501,7 @@ function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
     <section className="ios-hub" aria-label="Everything in HydroSentinel">
       <div className="ios-panel-head">
         <strong>Everything in HydroSentinel</strong>
-        <small className="ios-muted">Tap any card to open it · keys 1–6 switch sections</small>
+        <small className="ios-muted">Tap any card to open it · keys 1–7 switch sections</small>
       </div>
       <div className="ios-hub-grid">
         {FEATURES.map((f) => (

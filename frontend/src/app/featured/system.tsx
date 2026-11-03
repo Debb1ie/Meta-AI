@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { API_URL, AiStatus, Icon, SourceStatus, api, getAdminKey, setAdminKey, timeAgo } from "./shared";
 
 export const SHORTCUTS: [string, string][] = [
-  ["1 – 6", "Switch section"],
+  ["1 – 7", "Switch section"],
   ["/", "Search live gauges"],
   ["R", "Refresh data"],
   ["T", "Cycle light / dark / auto"],

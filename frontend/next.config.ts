@@ -11,7 +11,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://server.arcgisonline.com https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${API_URL}${isDev ? " ws: http://localhost:8000" : ""}`,
+  `connect-src 'self' ${API_URL} https://api.open-meteo.com${isDev ? " ws: http://localhost:8000" : ""}`,
   "worker-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",
