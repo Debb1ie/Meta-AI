@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import Station, get_session
-from ..providers import glofas
+from ..providers import glofas, hazards
 from ..risk import LEVELS, Thresholds
 from ..services import full_station_report, source_status, station_observations, station_summary, station_weather, sync_live_gauges
 
@@ -142,3 +142,12 @@ def data_sources() -> dict:
 def live_sync(session: Session = Depends(get_session)) -> dict:
     """Pull the latest gauge readings now instead of waiting for the background refresh."""
     return sync_live_gauges(session)
+
+
+@router.get("/hazards")
+def live_hazards() -> dict:
+    """Active typhoons and floods (GDACS) nearest the Philippines, plus UK flood warnings in force."""
+    try:
+        return hazards.hazards()
+    except hazards.HazardsUnavailable as exc:
+        raise HTTPException(503, str(exc)) from exc

@@ -1,11 +1,13 @@
 import logging
 import threading
+import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
+from .ai import agent
 from .api import ai, data, stations
 from .config import get_settings
 from .db import SessionLocal, Station, init_db, utcnow
@@ -34,6 +36,34 @@ def _refresh_outlook() -> None:
         _set_status("outlook", name="GloFAS via Open-Meteo (modelled)", last_sync=utcnow().isoformat(), ok=False, errors={"all": str(exc)})
 
 
+def _maybe_run_agent() -> None:
+    """Keep a recent agent briefing so the dashboard opens with one, without spending on every sync."""
+    settings = get_settings()
+    hours = settings.agent_autorun_hours
+    if hours <= 0 or not settings.meta_configured:
+        return
+    last = agent.latest()
+    if last and time.time() - _ts(last["generated_at"]) < hours * 3600:
+        return
+    if not ai._agent_running.acquire(blocking=False):
+        return
+    try:
+        with SessionLocal() as session:
+            for event in agent.run(session):
+                if event["type"] == "error":
+                    log.warning("Agent autorun failed: %s", event["text"])
+                elif event["type"] == "final":
+                    log.info("Agent briefing ready: %s tool calls, verification %.0f%%", event["tool_calls"], 100 * event["verification"]["score"])
+    finally:
+        ai._agent_running.release()
+
+
+def _ts(iso: str) -> float:
+    from datetime import datetime
+
+    return datetime.fromisoformat(iso).timestamp()
+
+
 def _live_loop(stop: threading.Event) -> None:
     """Pull new live readings every few minutes, then pre-compute forecasts so the
     dashboard never waits on model training."""
@@ -47,6 +77,10 @@ def _live_loop(stop: threading.Event) -> None:
             log.exception("Live gauge sync failed")
         _refresh_outlook()
         _warm_forecasts()
+        try:
+            _maybe_run_agent()
+        except Exception:
+            log.exception("Agent autorun crashed")
         stop.wait(minutes * 60)
 
 
