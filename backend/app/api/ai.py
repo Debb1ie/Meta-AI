@@ -11,6 +11,7 @@ from ..ai import agent, analyst, meta_client, segmentation
 from ..providers import glofas
 from ..config import get_settings
 from ..db import SessionLocal, Station, get_session
+from ..security import rate_limit
 from .stations import all_reports
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
@@ -36,7 +37,7 @@ class AnalystRequest(BaseModel):
     history: list[dict] = Field(default_factory=list, max_length=12)
 
 
-@router.post("/analyst")
+@router.post("/analyst", dependencies=[Depends(rate_limit("analyst"))])
 async def ask_analyst(body: AnalystRequest, session: Session = Depends(get_session)) -> dict:
     if body.station_id and session.get(Station, body.station_id) is None:
         raise HTTPException(404, f"Station '{body.station_id}' not found.")
@@ -53,7 +54,7 @@ async def ask_analyst(body: AnalystRequest, session: Session = Depends(get_sessi
     return {**result, "context": context}
 
 
-@router.post("/segment")
+@router.post("/segment", dependencies=[Depends(rate_limit("vision"))])
 async def segment_photo(file: UploadFile = File(...), prompt: str = Form("floodwater")) -> dict:
     data = await file.read()
     try:
@@ -75,7 +76,7 @@ class GraphicRequest(BaseModel):
     topic: str
 
 
-@router.post("/preparedness-graphic")
+@router.post("/preparedness-graphic", dependencies=[Depends(rate_limit("image"))])
 async def preparedness_graphic(body: GraphicRequest) -> dict:
     if body.topic not in PREPAREDNESS_TOPICS:
         raise HTTPException(422, f"Unknown topic. Choose one of: {', '.join(PREPAREDNESS_TOPICS)}")
@@ -95,7 +96,7 @@ async def preparedness_graphic(body: GraphicRequest) -> dict:
 _agent_running = threading.Lock()
 
 
-@router.post("/agent/run")
+@router.post("/agent/run", dependencies=[Depends(rate_limit("agent"))])
 def run_agent() -> StreamingResponse:
     """Run the flood-watch agent; streams NDJSON progress events, ending with `final` or `error`."""
     if not get_settings().meta_configured:
@@ -147,7 +148,7 @@ POSTER_MOOD = {
 }
 
 
-@router.post("/alert-poster")
+@router.post("/alert-poster", dependencies=[Depends(rate_limit("image"))])
 async def alert_poster(body: PosterRequest) -> dict:
     """Muse Image community poster for the current briefing (illustration only, no text)."""
     prompt = (

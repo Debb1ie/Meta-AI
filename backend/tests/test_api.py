@@ -17,7 +17,7 @@ def client():
 
     original = open_meteo.fetch_forecast
     open_meteo.fetch_forecast = unavailable
-    with TestClient(app) as c:
+    with TestClient(app, headers={"X-Admin-Token": "test-admin"}) as c:
         yield c
     open_meteo.fetch_forecast = original
 

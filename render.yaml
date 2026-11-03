@@ -26,6 +26,11 @@ services:
       # Comma-separated frontend origins, e.g. https://hydrosentinel.vercel.app
       - key: CORS_ORIGINS
         sync: false
-      # Also allow this project's Vercel preview deployments.
+      # Also allow this project's Vercel preview deployments, and only this team's:
+      # anyone can create a "hydrosentinel-evil" Vercel project; nobody else can use our team suffix.
       - key: CORS_ORIGIN_REGEX
-        value: "https://hydrosentinel[a-z0-9-]*\\.vercel\\.app"
+        value: "https://hydrosentinel-[a-z0-9]+-precious-manucoms-projects\\.vercel\\.app"
+      # Admin key for data-changing endpoints. Render generates a random value; read it in
+      # the dashboard (Environment tab) when you need to edit alert levels or import data.
+      - key: ADMIN_TOKEN
+        generateValue: true

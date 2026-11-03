@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import Station, get_session
+from ..security import require_admin
 from ..providers import glofas, hazards
 from ..risk import LEVELS, Thresholds
 from ..services import full_station_report, source_status, station_observations, station_summary, station_weather, sync_live_gauges
@@ -57,7 +58,7 @@ def export_station_csv(station_id: str, session: Session = Depends(get_session))
     return PlainTextResponse(csv, media_type="text/csv", headers={"Content-Disposition": f'attachment; filename="{station.id}.csv"'})
 
 
-@router.put("/stations/{station_id}/thresholds")
+@router.put("/stations/{station_id}/thresholds", dependencies=[Depends(require_admin)])
 def update_thresholds(station_id: str, body: ThresholdUpdate, session: Session = Depends(get_session)) -> dict:
     station = _get_station(session, station_id)
     try:
@@ -138,7 +139,7 @@ def data_sources() -> dict:
     return source_status()
 
 
-@router.post("/live/sync")
+@router.post("/live/sync", dependencies=[Depends(require_admin)])
 def live_sync(session: Session = Depends(get_session)) -> dict:
     """Pull the latest gauge readings now instead of waiting for the background refresh."""
     return sync_live_gauges(session)

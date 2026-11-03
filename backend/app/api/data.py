@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import Dataset, Station, as_utc, get_session
+from ..security import rate_limit, require_admin
 from ..forecasting.preprocessing import validate_observations
 from ..providers.base import StationMetadata
 from ..risk import Thresholds
@@ -64,7 +65,7 @@ def csv_template() -> str:
     return TEMPLATE
 
 
-@router.post("/data/preview")
+@router.post("/data/preview", dependencies=[Depends(rate_limit("csv"))])
 async def preview_csv(
     file: UploadFile = File(...),
     source_timezone: str = Form("UTC"),
@@ -91,7 +92,7 @@ async def preview_csv(
     }
 
 
-@router.post("/data/import")
+@router.post("/data/import", dependencies=[Depends(require_admin)])
 async def import_csv(
     file: UploadFile = File(...),
     source_timezone: str = Form("UTC"),
@@ -180,7 +181,7 @@ def list_datasets(session: Session = Depends(get_session)) -> list[dict]:
     return [_dataset_dict(d) for d in session.scalars(select(Dataset).order_by(Dataset.created_at.desc()))]
 
 
-@router.post("/demo/reset")
+@router.post("/demo/reset", dependencies=[Depends(require_admin)])
 def reset_demo(session: Session = Depends(get_session)) -> dict:
     dataset = seed_demo(session, force=True)
     return {"dataset": _dataset_dict(dataset)}

@@ -10,3 +10,6 @@ os.environ["META_MODEL_API_KEY"] = ""
 # Deterministic demo data, no live network sync during tests.
 os.environ["LIVE_DATA_ENABLED"] = "false"
 os.environ["SEED_DEMO_DATA"] = "true"
+# Admin key for data-changing endpoints; rate limits are exercised in test_security.py.
+os.environ["ADMIN_TOKEN"] = "test-admin"
+os.environ["RATE_LIMITS_ENABLED"] = "false"

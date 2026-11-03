@@ -12,6 +12,7 @@ from .api import ai, data, stations
 from .config import get_settings
 from .db import SessionLocal, Station, init_db, utcnow
 from .providers import glofas
+from .security import SecurityHeaders
 from .services import _set_status, remove_simulated, seed_demo, station_forecast, sync_live_gauges
 
 log = logging.getLogger("hydrosentinel")
@@ -103,6 +104,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="HydroSentinel AI", version="0.1.0", lifespan=lifespan)
+app.add_middleware(SecurityHeaders)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in get_settings().cors_origins.split(",") if o.strip()],
