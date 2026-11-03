@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon } from "./featured/shared";
-import { GridLive, HeroLive, MetaModelsLive, RightNowLive } from "./landing";
+import { GridLive, HeroLive, MetaModelsLive, RightNowLive, StatusLive } from "./landing";
 
 const REPO = "https://github.com/Debb1ie/Meta-AI";
 
@@ -80,7 +80,7 @@ const JUMP = [
   { label: "Ask", href: "/featured?tab=ask", icon: Icon.ask },
   { label: "Photo check", href: "/featured?tab=tools#tool-photo", icon: Icon.image },
   { label: "Posters", href: "/featured?tab=tools#tool-poster", icon: Icon.bag },
-  { label: "3D forecast", href: "/research", icon: Icon.map },
+  { label: "3D layers", href: "/featured?tab=layers", icon: Icon.layers },
 ];
 
 export default function Home() {
@@ -127,6 +127,22 @@ export default function Home() {
       </section>
 
       <RightNowLive />
+
+      <section className="lx-section" id="status">
+        <div className="shell lx-status">
+          <div className="lx-status-copy">
+            <div className="section-kicker">Is my river safe right now?</div>
+            <h2 className="lx-h2">One answer, <em>in plain words.</em></h2>
+            <p>
+              The river closest to its own watch level, its last week and the forecast, the nearest storm, and the SMS
+              residents would receive in their language. Every number comes from the live data and is checked by our
+              server before it is shown.
+            </p>
+            <Link className="text-link" href="/featured?tab=outlook">See all 17 basins {Icon.arrow}</Link>
+          </div>
+          <StatusLive />
+        </div>
+      </section>
 
       <section className="section shell" id="why">
         <div className="section-kicker">Why it matters</div>

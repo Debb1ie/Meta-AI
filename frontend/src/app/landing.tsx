@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { API_URL, Icon } from "./featured/shared";
+import { HeroScene } from "./hero-scene";
 import { RiverStatus } from "./river-status";
 
 // ---------------------------------------------------------------- live data (landing shows real numbers, not mock-ups)
@@ -217,6 +218,10 @@ export function CapabilityGrid({ live }: { live: LiveData }) {
 // ---------------------------------------------------------------- composition (each piece shares the cached requests)
 
 export function HeroLive() {
+  return <HeroScene live={useLiveData()} />;
+}
+
+export function StatusLive() {
   return <RiverStatus live={useLiveData()} />;
 }
 

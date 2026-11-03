@@ -100,6 +100,19 @@ function FlowChart({ river, status }: { river: LiveRiver; status: Status }) {
   );
 }
 
+/** Count of basins in each status, shown as words with their icon (never colour alone). */
+function BasinCounts({ rivers }: { rivers: LiveRiver[] }) {
+  const counts = { normal: 0, watch: 0, alert: 0 };
+  rivers.forEach((r) => counts[statusOf(r.level)]++);
+  return (
+    <p className="rs-counts">
+      {(["normal", "watch", "alert"] as Status[]).map((s) => (
+        <span key={s} className={`rs-legend is-${s}`}><StatusIcon status={s} size={14} />{counts[s]} {STATUS[s].word.toLowerCase()}</span>
+      ))}
+    </p>
+  );
+}
+
 /** The 17 basins on an outline of the Philippines; shape and colour both carry the status. */
 function BasinMap({ rivers, focusId }: { rivers: LiveRiver[]; focusId: string }) {
   const counts = { normal: 0, watch: 0, alert: 0 };
@@ -124,11 +137,6 @@ function BasinMap({ rivers, focusId }: { rivers: LiveRiver[]; focusId: string })
           );
         })}
       </svg>
-      <figcaption>
-        {(["normal", "watch", "alert"] as Status[]).map((s) => (
-          <span key={s} className={`rs-legend is-${s}`}><StatusIcon status={s} size={14} />{counts[s]} {STATUS[s].word.toLowerCase()}</span>
-        ))}
-      </figcaption>
     </figure>
   );
 }
@@ -182,6 +190,7 @@ export function RiverStatus({ live }: { live: LiveData }) {
             <div><dt>Watch level</dt><dd>{m3(river.thresholds_m3s.advisory)} (the peak is {pctOfWatch}% of it)</dd></div>
           </dl>
           <p className="rs-note">Closest to its watch level of all {live.rivers.length} Philippine basins we track.</p>
+          <BasinCounts rivers={live.rivers} />
         </div>
         <BasinMap rivers={live.rivers} focusId={river.id} />
       </div>
