@@ -24,4 +24,5 @@ These documents follow the templates from [nmblr.agent-kit](https://github.com/t
 
 - [RFC-0001: Verifiable flood-watch agent](engineering/RFC-0001-verifiable-flood-watch-agent.md): tools, briefing schema, verification, budget and streaming (Implemented).
 - [RFC-0002: Research page and 3D forecast layer](engineering/RFC-0002-research-3d-forecast-layer.md): the three.js view of all basins and the live method page (Implemented).
+- [RFC-0003: 3D flood layers in the dashboard](engineering/RFC-0003-3d-flood-layers.md): terrain, rainfall, river flow, forecast peak and a flood-watch index, stacked and interactive (Implemented).
 - [TP-0001: HydroSentinel test plan](engineering/TP-0001-test-plan.md): test levels, the 56 automated backend tests, manual checks and release criteria.

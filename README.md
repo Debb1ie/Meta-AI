@@ -6,7 +6,7 @@ Live demo: https://hydrosentinel-plum.vercel.app (no login needed)
 Problem statement: **Build for Your World**
 Built for the Meta Global AI Developer Hackathon 2026. See [HACKATHON.md](HACKATHON.md) for everything built during the event.
 
-![HydroSentinel landing page with the live river status card](docs/images/landing.png)
+![HydroSentinel landing page with live river, typhoon and agent cards](docs/images/landing.png)
 
 ## The problem
 
@@ -30,13 +30,25 @@ About 20 tropical cyclones enter the Philippine Area of Responsibility each year
 | Ask | Questions in English, Filipino or Taglish, answered from live data |
 | Photo check | SAM 3.1 measures how much of a field photo is flooded |
 | Posters | Muse Image community posters matched to the day's alert level |
-| Research | A 3D forecast layer and heat map across the country, with the full methodology and live evaluation |
+| 3D layers | Terrain, rainfall forecast, river flow, forecast peak and a flood-watch index stacked over the Philippines |
+| Research | The forecasting method, parameters and live skill scores |
 | Data checker | Validates a CSV of river readings and reports gaps, duplicates and bad values |
 
-| | |
-|---|---|
-| ![Agent briefing with verified numbers](docs/images/dashboard-agent.png) | ![Philippine basin outlook](docs/images/dashboard-outlook.png) |
-| ![3D forecast layer on the Research page](docs/images/research-3d.png) | ![Mobile view](docs/images/mobile-hero.png) |
+### 3D flood layers
+
+![Five map layers stacked over the Philippines: terrain, rainfall, river flow, forecast peak and the flood-watch index](docs/images/dashboard-layers.png)
+
+### Is my river safe right now?
+
+![The river closest to its watch level, with its 15-day flow, the nearest cyclone, the verification count and the SMS alert](docs/images/river-status.png)
+
+### Flood-watch agent
+
+![Agent briefing with every number verified against the data it cites](docs/images/dashboard-agent.png)
+
+### Philippine river outlook
+
+![17 Philippine basins on a map with 30-day flow forecasts](docs/images/dashboard-outlook.png)
 
 ## How it uses Meta AI
 
