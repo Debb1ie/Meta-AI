@@ -20,7 +20,7 @@ node_modules/
 .claude/hooks/
 .claude/nmblr/
 .claude/settings.json
-.claude/skills/nmblr-*/
 
-# Local Claude Code tooling (skills, agents, hooks) stays out of the repo
-.claude/
+# Claude Code: skills are shared in the repo; agents, hooks and local settings stay on each machine
+.claude/*
+!.claude/skills/
