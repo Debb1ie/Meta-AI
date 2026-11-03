@@ -72,23 +72,24 @@ function FlowChart({ river, status }: { river: LiveRiver; status: Status }) {
 
   return (
     <figure className="rs-chart">
-      <svg viewBox={`0 0 ${W} ${H + 18}`} role="img" aria-label={summary}>
-        {days.map((d, i) => {
-          const isToday = d.date === today;
-          const h = Math.max(2, H - y(d.discharge_m3s));
-          const cls = isToday ? `rs-bar is-today is-${status}` : d.is_forecast ? "rs-bar is-ahead" : "rs-bar";
-          return <rect key={d.date} className={cls} x={i * bw + 2} y={H - h} width={bw - 4} height={h} rx="2" />;
-        })}
-        {showLine && (
-          <g className="rs-watchline">
-            <line x1="0" x2={W} y1={y(watch)} y2={y(watch)} />
-            <text x={W} y={y(watch) - 5} textAnchor="end">Watch level {m3(watch)}</text>
-          </g>
-        )}
-        <text className="rs-axis" x="0" y={H + 15}>{dayLabel(days[0].date)}</text>
-        <text className="rs-axis" x={(past.length - 0.5) * bw} y={H + 15} textAnchor="middle">Today</text>
-        <text className="rs-axis" x={W} y={H + 15} textAnchor="end">{dayLabel(days[days.length - 1].date)}</text>
-      </svg>
+      <div className="rs-plot">
+        {/* Bars stretch to the card width; text stays HTML so it never scales with the chart. */}
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={summary}>
+          {days.map((d, i) => {
+            const isToday = d.date === today;
+            const h = Math.max(2, H - y(d.discharge_m3s));
+            const cls = isToday ? `rs-bar is-today is-${status}` : d.is_forecast ? "rs-bar is-ahead" : "rs-bar";
+            return <rect key={d.date} className={cls} x={i * bw + 2} y={H - h} width={bw - 4} height={h} rx="2" vectorEffect="non-scaling-stroke" />;
+          })}
+          {showLine && <line className="rs-watchline" x1="0" x2={W} y1={y(watch)} y2={y(watch)} vectorEffect="non-scaling-stroke" />}
+        </svg>
+        {showLine && <span className="rs-watchlabel" style={{ top: `${(y(watch) / H) * 100}%` }}>Watch level {m3(watch)}</span>}
+      </div>
+      <div className="rs-axis-row" aria-hidden>
+        <span>{dayLabel(days[0].date)}</span>
+        <span className="rs-axis-today" style={{ left: `${((past.length - 0.5) / days.length) * 100}%` }}>Today</span>
+        <span>{dayLabel(days[days.length - 1].date)}</span>
+      </div>
       <figcaption>
         <span><i className="rs-key" /> Past 7 days</span>
         <span><i className={`rs-key is-${status}`} /> Today</span>
