@@ -11,3 +11,7 @@ wheels/
 
 # Runtime agent briefing cache
 data/latest_briefing.json
+
+# Runtime SQLite database: rebuilt on startup from live feeds, never committed
+data/hydrosentinel.db
+data/*.db-journal
