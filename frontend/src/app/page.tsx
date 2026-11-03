@@ -96,7 +96,9 @@ export default function Home() {
           <a href="#meta">Meta AI</a>
           <a href="#try">Try it</a>
           <Link href="/research">Research</Link>
-          <Link className="nav-cta" href="/featured">Open command center {Icon.arrow}</Link>
+          <Link className="nav-cta" href="/featured" aria-label="Open command center">
+            <span className="nav-cta-long">Open command center</span><span className="nav-cta-short">Open app</span> {Icon.arrow}
+          </Link>
         </div>
       </nav>
 
