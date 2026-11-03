@@ -90,6 +90,27 @@ def chat_json(messages: list[dict], schema: dict, schema_name: str, temperature:
     return parsed, meta
 
 
+def chat_tools(messages: list[dict], tools: list[dict], temperature: float = 0.2) -> tuple[dict, dict]:
+    """One Muse Spark turn with native function calling. Returns (assistant message, metadata);
+    the message carries `tool_calls` when the model wants to use a tool."""
+    settings = get_settings()
+    payload = {"model": settings.meta_text_model, "messages": messages, "tools": tools, "temperature": temperature}
+    try:
+        resp = httpx.post(_url("/chat/completions"), headers=_headers(), json=payload, timeout=settings.meta_timeout_seconds)
+    except httpx.TimeoutException as exc:
+        raise MetaAPIError("Meta Model API timed out.", 504) from exc
+    except httpx.HTTPError as exc:
+        raise MetaAPIError(f"Could not reach the Meta Model API: {exc}", 502) from exc
+    _raise_for_status(resp)
+    body = resp.json()
+    try:
+        message = body["choices"][0]["message"]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise MetaAPIError("Muse Spark returned no message.", 502, str(body)[:500]) from exc
+    meta = {"model": body.get("model", settings.meta_text_model), "usage": body.get("usage"), "id": body.get("id")}
+    return message, meta
+
+
 def _sse_events(resp: httpx.Response) -> Iterator[dict]:
     data_lines: list[str] = []
     for line in resp.iter_lines():

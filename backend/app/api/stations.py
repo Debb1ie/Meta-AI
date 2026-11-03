@@ -1,13 +1,15 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import Station, get_session
+from ..providers import glofas, hazards
 from ..risk import LEVELS, Thresholds
-from ..services import full_station_report, station_summary, station_weather
+from ..services import full_station_report, source_status, station_observations, station_summary, station_weather, sync_live_gauges
 
 router = APIRouter(prefix="/api", tags=["stations"])
 
@@ -43,6 +45,16 @@ class ThresholdUpdate(BaseModel):
     critical_m: float
     rise_rate_m_per_h: float = Field(gt=0)
     source: str = Field(min_length=3, max_length=500)
+
+
+@router.get("/stations/{station_id}/export.csv", response_class=PlainTextResponse)
+def export_station_csv(station_id: str, session: Session = Depends(get_session)) -> PlainTextResponse:
+    """Every stored observation for one station (UTC), for analysis outside the app."""
+    station = _get_station(session, station_id)
+    frame = station_observations(session, station.id)
+    frame.insert(1, "station_id", station.id)
+    csv = frame.to_csv(index=False, date_format="%Y-%m-%dT%H:%M:%SZ")
+    return PlainTextResponse(csv, media_type="text/csv", headers={"Content-Disposition": f'attachment; filename="{station.id}.csv"'})
 
 
 @router.put("/stations/{station_id}/thresholds")
@@ -110,3 +122,32 @@ def overview(session: Session = Depends(get_session)) -> dict:
         "any_simulated": any(row["station"]["is_simulated"] for row in rows),
         "stations": rows,
     }
+
+
+@router.get("/outlook")
+def philippine_outlook() -> dict:
+    """GloFAS modelled discharge outlook for major Philippine rivers."""
+    try:
+        return glofas.outlook()
+    except glofas.OutlookUnavailable as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
+@router.get("/sources")
+def data_sources() -> dict:
+    return source_status()
+
+
+@router.post("/live/sync")
+def live_sync(session: Session = Depends(get_session)) -> dict:
+    """Pull the latest gauge readings now instead of waiting for the background refresh."""
+    return sync_live_gauges(session)
+
+
+@router.get("/hazards")
+def live_hazards() -> dict:
+    """Active typhoons and floods (GDACS) nearest the Philippines, plus UK flood warnings in force."""
+    try:
+        return hazards.hazards()
+    except hazards.HazardsUnavailable as exc:
+        raise HTTPException(503, str(exc)) from exc

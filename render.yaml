@@ -1,0 +1,31 @@
+# Render Blueprint for the HydroSentinel API (FastAPI).
+# Render dashboard → New → Blueprint → pick this repo. You'll be asked for the
+# two `sync: false` values: your Meta Model API key and the Vercel site URL.
+services:
+  - type: web
+    name: hydrosentinel-ph-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: singapore
+    buildCommand: pip install uv && uv sync --frozen --no-dev
+    startCommand: uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: LIVE_DATA_ENABLED
+        value: "true"
+      - key: LIVE_REFRESH_MINUTES
+        value: "15"
+      - key: SEED_DEMO_DATA
+        value: "false"
+      # Secret: set in the Render dashboard, never committed.
+      - key: META_MODEL_API_KEY
+        sync: false
+      # Comma-separated frontend origins, e.g. https://hydrosentinel.vercel.app
+      - key: CORS_ORIGINS
+        sync: false
+      # Also allow this project's Vercel preview deployments.
+      - key: CORS_ORIGIN_REGEX
+        value: "https://hydrosentinel[a-z0-9-]*\\.vercel\\.app"

@@ -26,7 +26,20 @@ class Settings(BaseSettings):
     open_meteo_base_url: str = "https://api.open-meteo.com/v1"
     open_meteo_cache_seconds: int = 900
 
+    # Live, keyless open data. Gauges: UK Environment Agency (measured levels, 15 min).
+    # Philippine outlook: Open-Meteo Flood API (GloFAS modelled daily river discharge).
+    live_data_enabled: bool = True
+    live_refresh_minutes: int = 15
+    seed_demo_data: bool = False
+    ea_base_url: str = "https://environment.data.gov.uk/flood-monitoring"
+    open_meteo_flood_url: str = "https://flood-api.open-meteo.com/v1"
+    glofas_cache_seconds: int = 3 * 3600
+    # Run the flood-watch agent in the background this often (hours); 0 disables. Each run costs a few cents.
+    agent_autorun_hours: float = 3.0
+
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    # Optional regex for extra origins, e.g. Vercel preview URLs: https://hydrosentinel.*\.vercel\.app
+    cors_origin_regex: str = ""
 
     @property
     def meta_configured(self) -> bool:
