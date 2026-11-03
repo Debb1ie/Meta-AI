@@ -272,8 +272,8 @@ export function ScrollGrid3D({ live }: { live: LiveData }) {
     let raf = 0;
     const update = () => {
       const r = el.getBoundingClientRect();
-      const total = r.height - window.innerHeight;
-      const p = total > 0 ? Math.min(1, Math.max(0, -r.top / (total * 0.7))) : 1;
+      // 0 when the section's top meets the bottom of the screen, 1 once it reaches 35% from the top.
+      const p = Math.min(1, Math.max(0, (window.innerHeight - r.top) / (window.innerHeight * 0.65)));
       el.style.setProperty("--p", p.toFixed(3));
       raf = 0;
     };

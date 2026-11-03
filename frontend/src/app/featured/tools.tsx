@@ -83,7 +83,7 @@ function PhotoCheck({ aiStatus }: { aiStatus: AiStatus | null }) {
   const limitations = result ? ([] as string[]).concat(result.limitations ?? []) : [];
 
   return (
-    <section className="ios-card ios-tool">
+    <section className="ios-card ios-tool" id="tool-photo">
       <span className="ios-card-label">Flood photo check · SAM 3.1</span>
       <h3>Find floodwater in a photo</h3>
       <p className="ios-muted">Upload a photo from the field. The model outlines the water so you can see how much of the scene is flooded.</p>
@@ -141,7 +141,7 @@ function Preparedness({ aiStatus }: { aiStatus: AiStatus | null }) {
   const src = graphic?.b64 ? `data:image/${ext};base64,${graphic.b64}` : graphic?.url ?? null;
 
   return (
-    <section className="ios-card ios-tool">
+    <section className="ios-card ios-tool" id="tool-poster">
       <span className="ios-card-label">Preparedness · Muse Image</span>
       <h3>Make a community illustration</h3>
       <p className="ios-muted">Generate a simple picture to share with residents before the water rises.</p>
@@ -262,7 +262,7 @@ function ImportData({ onImported }: { onImported: () => void }) {
   const r = preview?.report;
 
   return (
-    <section className="ios-card ios-tool ios-tool-wide">
+    <section className="ios-card ios-tool ios-tool-wide" id="tool-import">
       <span className="ios-card-label">Your data</span>
       <h3>Import river readings</h3>
       <p className="ios-muted">
@@ -335,9 +335,23 @@ function ImportData({ onImported }: { onImported: () => void }) {
   );
 }
 
+const JUMPS = [
+  { id: "tool-system", label: "System & admin", icon: Icon.server },
+  { id: "tool-photo", label: "Flood photo check", icon: Icon.image },
+  { id: "tool-poster", label: "Community posters", icon: Icon.bag },
+  { id: "tool-import", label: "Import data", icon: Icon.upload },
+];
+
 export function ToolsView({ aiStatus, sources, onDataChanged }: { aiStatus: AiStatus | null; sources: SourceStatus; onDataChanged: () => void }) {
   return (
     <div className="ios-tools">
+      <nav className="ios-jump" aria-label="Jump to a tool">
+        {JUMPS.map((j) => (
+          <a key={j.id} href={`#${j.id}`} onClick={(e) => { e.preventDefault(); document.getElementById(j.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
+            {j.icon}{j.label}
+          </a>
+        ))}
+      </nav>
       <SystemPanel aiStatus={aiStatus} sources={sources} onSynced={onDataChanged} />
       <PhotoCheck aiStatus={aiStatus} />
       <Preparedness aiStatus={aiStatus} />

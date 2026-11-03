@@ -20,6 +20,15 @@ const pillars = [
   },
 ];
 
+const JUMP = [
+  { label: "Agent", href: "/featured?tab=agent", icon: Icon.agent },
+  { label: "PH Outlook", href: "/featured?tab=outlook", icon: Icon.outlook },
+  { label: "Live gauges", href: "/featured?tab=stations", icon: Icon.stations },
+  { label: "Ask", href: "/featured?tab=ask", icon: Icon.ask },
+  { label: "Photo check", href: "/featured?tab=tools#tool-photo", icon: Icon.image },
+  { label: "Posters", href: "/featured?tab=tools#tool-poster", icon: Icon.bag },
+];
+
 const loop = [
   { n: "01", label: "Observe", icon: Icon.stations },
   { n: "02", label: "Forecast", icon: Icon.activity },
@@ -56,6 +65,10 @@ export default function Home() {
             <Link className="button button-primary" href="/featured">Explore the live dashboard {Icon.arrow}</Link>
             <a className="text-link" href="#inside">See what&apos;s inside {Icon.down}</a>
           </div>
+          <nav className="lp-jump lp-rise" style={{ animationDelay: "300ms" }} aria-label="Jump straight to a feature">
+            <span>Jump straight in</span>
+            {JUMP.map((j) => <Link key={j.label} href={j.href}>{j.icon}{j.label}</Link>)}
+          </nav>
           <div className="hero-note lp-rise" style={{ animationDelay: "320ms" }}>
             <span className="meta-spark">{Icon.spark}</span>
             Built with Meta Model API · Muse Spark · SAM 3.1 · Muse Image

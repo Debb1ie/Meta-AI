@@ -148,6 +148,10 @@ export default function Featured() {
     if (saved === "light" || saved === "dark") setTheme(saved);
     const requested = new URLSearchParams(window.location.search).get("tab");
     if (requested && (TABS as string[]).includes(requested)) setTab(requested as Tab);
+    if (window.location.hash) {
+      const id = window.location.hash.slice(1);
+      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 400);
+    }
     // The backend refreshes sources every 15 min; poll a little faster so new data shows promptly.
     const timer = window.setInterval(load, 5 * 60 * 1000);
     return () => window.clearInterval(timer);
@@ -239,6 +243,11 @@ export default function Featured() {
     setRiverId(id);
     // On narrow screens the detail sits below the list; bring it into view.
     if (!isDesktop) window.setTimeout(() => document.getElementById("ios-detail")?.scrollIntoView({ behavior: "smooth" }), 60);
+  };
+
+  const goTo = (next: Tab, anchor?: string) => {
+    switchTab(next);
+    if (anchor) window.setTimeout(() => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
   };
 
   const openRiver = (id: string) => {
@@ -351,6 +360,7 @@ export default function Featured() {
               hazards={hazards}
               agent={agent}
               onOpenAgent={() => switchTab("agent")}
+              onGo={goTo}
               onOpenRiver={openRiver}
               tipVisible={tipVisible}
               onDismissTip={dismissTip}
@@ -464,6 +474,41 @@ function LevelMix({ stations, outlook }: { stations: Station[]; outlook: Outlook
   );
 }
 
+const FEATURES: { tab: Tab; anchor?: string; icon: React.ReactNode; title: string; text: string; tag: string }[] = [
+  { tab: "agent", icon: Icon.agent, title: "Flood-watch agent", text: "Watch Muse Spark investigate, cite evidence and verify its numbers.", tag: "Muse Spark" },
+  { tab: "outlook", icon: Icon.outlook, title: "Philippine outlook", text: "17 basins on a map with 30-day flow forecasts and alert levels.", tag: "GloFAS" },
+  { tab: "stations", icon: Icon.stations, title: "Live gauges", text: "Measured levels, forecasts, backtests and model diagnostics.", tag: "Every 15 min" },
+  { tab: "ask", icon: Icon.ask, title: "Ask Muse Spark", text: "Plain-language answers grounded in the live data.", tag: "Chat" },
+  { tab: "tools", anchor: "tool-photo", icon: Icon.image, title: "Flood photo check", text: "Upload a field photo; SAM 3.1 outlines the floodwater.", tag: "SAM 3.1" },
+  { tab: "tools", anchor: "tool-poster", icon: Icon.bag, title: "Community posters", text: "Generate preparedness illustrations to share.", tag: "Muse Image" },
+  { tab: "tools", anchor: "tool-import", icon: Icon.upload, title: "Import your data", text: "Bring CSV gauge readings; every row is validated.", tag: "Admin" },
+  { tab: "tools", anchor: "tool-system", icon: Icon.server, title: "System & security", text: "Pipeline health, sync, API latency and admin access.", tag: "Ops" },
+];
+
+/** One card per feature, so nothing has to be discovered by scrolling. */
+function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
+  return (
+    <section className="ios-hub" aria-label="Everything in HydroSentinel">
+      <div className="ios-panel-head">
+        <strong>Everything in HydroSentinel</strong>
+        <small className="ios-muted">Tap any card to open it · keys 1–6 switch sections</small>
+      </div>
+      <div className="ios-hub-grid">
+        {FEATURES.map((f) => (
+          <button key={f.title} className="ios-hub-card" onClick={() => onGo(f.tab, f.anchor)}>
+            <span className="ios-hub-icon">{f.icon}</span>
+            <span className="ios-hub-text">
+              <b>{f.title}</b>
+              <small>{f.text}</small>
+            </span>
+            <span className="ios-hub-tag">{f.tag}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /** Live typhoons and floods near the Philippines (GDACS). */
 function HazardsCard({ hazards }: { hazards: Hazards | null }) {
   const near = hazards?.near_ph ?? [];
@@ -516,6 +561,7 @@ function TodayView(props: {
   hazards: Hazards | null;
   agent: ReturnType<typeof useAgent>;
   onOpenAgent: () => void;
+  onGo: (tab: Tab, anchor?: string) => void;
   onOpenRiver: (id: string) => void;
   tipVisible: boolean;
   onDismissTip: () => void;
@@ -566,6 +612,8 @@ function TodayView(props: {
       </section>
 
       <AgentCard agent={props.agent} onOpen={props.onOpenAgent} />
+
+      <FeatureHub onGo={props.onGo} />
 
       <section className="ios-tiles">
         <Tile icon={Icon.stations} label="Live gauges" value={overview?.station_count} unit="" note="measured every 15 min" loading={waiting} />

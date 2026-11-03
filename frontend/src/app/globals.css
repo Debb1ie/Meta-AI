@@ -965,3 +965,57 @@ html { -webkit-text-size-adjust:100%; }
 .orb-halo { position:absolute; left:22%; top:24%; width:56%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle, rgba(216,243,106,.45) 0%, rgba(216,243,106,.18) 38%, transparent 68%); animation:orb-float 6s ease-in-out infinite; }
 .orb-shadow { position:absolute; left:34%; top:74%; width:32%; height:5%; border-radius:50%; background:radial-gradient(ellipse, rgba(0,0,0,.35), transparent 70%); filter:blur(4px); animation:orb-shadow 6s ease-in-out infinite; }
 @keyframes orb-shadow { 50% { transform:scale(.86); opacity:.7; } }
+
+
+/* ================================================================ discoverability: nothing hides behind a scroll */
+/* Reveal is decoration only: content is visible before JS runs and before it scrolls into view. */
+[data-reveal] { opacity:1; transform:none; transition:none; }
+[data-reveal].is-in { animation:lp-lift .8s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes lp-lift { from { transform:translateY(22px); } }
+.lp .pillar { opacity:1; }
+
+/* 3D grid: readable immediately, a gentle tilt that settles as the section arrives, no sticky trap. */
+.lp-grid-section { height:auto; padding:110px 0 120px; }
+.lp-grid-sticky { position:static; height:auto; overflow:visible; gap:34px; }
+.lp-grid-head h2 { opacity:1; transform:none; }
+.lp-grid { transform:rotateX(calc((1 - var(--p)) * 26deg)) rotateZ(calc((1 - var(--p)) * -5deg)) scale(calc(.95 + var(--p) * .05)); }
+.lp-tile { opacity:1; transform:translateZ(calc((1 - var(--p)) * (var(--row) * 26px + var(--col) * 14px))); }
+
+/* "Jump straight in" links under the hero */
+.lp-jump { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:26px; max-width:560px; }
+.lp-jump > span { margin-right:4px; color:#879497; font-size:10px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+.lp .lp-jump a { display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border:1px solid var(--line); border-radius:30px; background:#fbfcf9; color:var(--ink); font-size:12px; font-weight:700; transition:border-color .2s, transform .2s, background .2s; }
+.lp .lp-jump a:hover { border-color:var(--teal); background:#fff; transform:translateY(-2px); }
+.lp-jump svg { width:14px; height:14px; color:var(--teal); }
+
+/* Dashboard feature hub */
+.ios-hub .ios-panel-head { align-items:baseline; flex-wrap:wrap; gap:6px; }
+.ios-hub-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.ios .ios-hub-card { position:relative; display:grid; grid-template-columns:auto 1fr; align-items:start; gap:12px; min-height:96px; padding:16px; border:1px solid var(--sep); border-radius:14px; background:var(--card); text-align:left; box-shadow:var(--shadow); transition:transform .25s var(--ease), border-color .25s, box-shadow .25s; }
+.ios .ios-hub-card:hover { transform:translateY(-3px); border-color:var(--tint); box-shadow:0 10px 26px rgba(16,37,42,.1); }
+.ios-hub-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:11px; background:var(--primary); color:var(--accent); }
+.ios[data-theme="dark"] .ios-hub-icon { color:var(--on-primary); }
+.ios-hub-icon svg { width:19px; height:19px; }
+.ios-hub-text b { display:block; margin-top:1px; font-size:14px; }
+.ios-hub-text small { display:block; margin-top:3px; color:var(--label2); font-size:12px; line-height:1.4; }
+.ios-hub-tag { position:absolute; top:12px; right:12px; padding:2px 7px; border-radius:6px; background:var(--fill); color:var(--label2); font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.ios-hub-card:nth-child(n) .ios-hub-text { padding-right:44px; }
+.ios-hub-grid > * { animation:ios-rise .5s var(--ease) both; }
+.ios-hub-grid > *:nth-child(2) { animation-delay:40ms; } .ios-hub-grid > *:nth-child(3) { animation-delay:80ms; }
+.ios-hub-grid > *:nth-child(4) { animation-delay:120ms; } .ios-hub-grid > *:nth-child(n+5) { animation-delay:160ms; }
+
+/* Jump chips at the top of long pages */
+.ios-jump { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; }
+.ios .ios-jump a { display:inline-flex; align-items:center; gap:7px; height:34px; padding:0 14px; border:1px solid var(--sep); border-radius:30px; background:var(--card); color:var(--label); font-size:12px; font-weight:700; text-decoration:none; transition:border-color .2s, background .2s; }
+.ios .ios-jump a:hover { border-color:var(--tint); }
+.ios-jump svg { width:14px; height:14px; color:var(--tint); }
+.ios-tool { scroll-margin-top:20px; }
+
+/* Admin access block in the System panel */
+.ios-admin { display:grid; gap:8px; padding:14px; border:1px dashed var(--sep); border-radius:12px; background:var(--bg); }
+.ios-admin > .ios-with-icon { gap:8px; }
+.ios-admin p { margin:0; }
+
+@media (max-width:1180px) { .ios-hub-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:520px) { .ios-hub-grid { grid-template-columns:1fr; } }
+@media (max-width:800px), (max-height:700px) { .lp-grid { transform:none; } .lp-tile { transform:none; } }
