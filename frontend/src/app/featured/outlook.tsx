@@ -48,7 +48,7 @@ function FlowChart({ river }: { river: PHRiver }) {
         </g>
       ))}
       {bandPath && <polygon points={bandPath} className="ios-flow-band" />}
-      <polyline points={path(past)} className="ios-flow-past" />
+      <polyline points={path(past)} className="ios-flow-past" pathLength={1} />
       {future.length > 1 && <polyline points={path(future)} className="ios-flow-future" />}
       {todayIdx >= 0 && (
         <g>

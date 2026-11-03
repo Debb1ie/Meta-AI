@@ -1,26 +1,36 @@
 import Link from "next/link";
+import { Icon } from "./featured/shared";
+import { GridLive, HeroLive, RevealOnScroll, TickerLive } from "./landing";
 
 const pillars = [
   {
     number: "01",
     title: "See the signal",
-    text: "Bring together river gauges, rainfall, weather, and community observations without losing their provenance.",
+    text: "Live river gauges, a 17-basin Philippine outlook, rainfall and typhoon feeds, each with its provenance.",
   },
   {
     number: "02",
     title: "Predict the shift",
-    text: "A local forecasting pipeline turns noisy readings into an uncertainty-aware view of what comes next.",
+    text: "A backtested forecasting engine turns noisy readings into an uncertainty-aware view of what comes next.",
   },
   {
     number: "03",
     title: "Move sooner",
-    text: "Risk is translated into a clear brief so people can act before a warning becomes an emergency.",
+    text: "A Muse Spark agent writes a cited, verified briefing and SMS alerts in five Philippine languages.",
   },
+];
+
+const loop = [
+  { n: "01", label: "Observe" },
+  { n: "02", label: "Forecast" },
+  { n: "03", label: "Verify" },
+  { n: "04", label: "Alert" },
 ];
 
 export default function Home() {
   return (
-    <main>
+    <main className="lp">
+      <RevealOnScroll />
       <nav className="nav shell">
         <Link className="brand" href="/">
           <span className="brand-mark">H</span>
@@ -28,108 +38,86 @@ export default function Home() {
         </Link>
         <div className="nav-links">
           <a href="#why">Why it matters</a>
+          <a href="#inside">What&apos;s inside</a>
           <a href="#how">How it works</a>
-          <Link className="nav-cta" href="/featured">Open command center <span>↗</span></Link>
+          <Link className="nav-cta" href="/featured">Open command center {Icon.arrow}</Link>
         </div>
       </nav>
 
       <section className="hero shell">
         <div className="hero-copy">
-          <div className="eyebrow"><span className="pulse-dot" /> EARLY WARNING, REIMAGINED</div>
-          <h1>Give communities<br /><em>more time.</em></h1>
-          <p className="hero-lede">
-            HydroSentinel turns fragmented water data into an explainable flood
-            outlook — so the people closest to the risk can make their next
-            decision with confidence.
+          <div className="eyebrow lp-rise"><span className="pulse-dot" /> EARLY WARNING, REIMAGINED</div>
+          <h1 className="lp-rise" style={{ animationDelay: "80ms" }}>Give communities<br /><em>more time.</em></h1>
+          <p className="hero-lede lp-rise" style={{ animationDelay: "160ms" }}>
+            HydroSentinel watches Philippine rivers, typhoons and rainfall around the clock. A Muse Spark agent turns the
+            live data into a verified briefing and alerts people can read in their own language.
           </p>
-          <div className="hero-actions">
-            <Link className="button button-primary" href="/featured">Explore live forecast <span>→</span></Link>
-            <a className="text-link" href="#why">See the thinking <span>↓</span></a>
+          <div className="hero-actions lp-rise" style={{ animationDelay: "240ms" }}>
+            <Link className="button button-primary" href="/featured">Explore the live dashboard {Icon.arrow}</Link>
+            <a className="text-link" href="#inside">See what&apos;s inside {Icon.down}</a>
           </div>
-          <div className="hero-note">
-            <span className="meta-spark">✦</span>
+          <div className="hero-note lp-rise" style={{ animationDelay: "320ms" }}>
+            <span className="meta-spark">{Icon.spark}</span>
             Built with Meta Model API · Muse Spark · SAM 3.1 · Muse Image
           </div>
         </div>
-        <div className="hero-visual" aria-label="Illustration of a river monitoring network">
-          <div className="orb orb-one" />
-          <div className="orb orb-two" />
-          <div className="river-line" />
-          <div className="terrain terrain-a" />
-          <div className="terrain terrain-b" />
-          <div className="map-label label-top">NORTH BASIN <span>●</span></div>
-          <div className="map-label label-bottom">SOUTH FORK <span>●</span></div>
-          <div className="station-card">
-            <div className="station-head"><span className="status-live" /> LIVE STATION <span className="station-time">09:42:18</span></div>
-            <strong>Riverside North</strong>
-            <div className="station-level"><span>2.84</span> m <b>↑ 0.18m</b></div>
-            <div className="mini-chart"><i /><i /><i /><i /><i /><i /><i /><i /><i /></div>
-            <div className="station-foot"><span>Forecast in 6h</span><strong>3.21m</strong></div>
-          </div>
-          <div className="signal signal-one"><span /></div>
-          <div className="signal signal-two"><span /></div>
-          <div className="visual-caption">ONE NETWORK. A CLEARER NEXT MOVE.</div>
-        </div>
+        <HeroLive />
       </section>
 
-      <section className="trust-bar">
-        <div className="shell trust-inner">
-          <span>FROM RAW READINGS</span><i>→</i><span>TO SHARED UNDERSTANDING</span>
-          <div className="trust-rule" />
-          <span className="trust-meta"><span className="meta-spark">✦</span> Designed for the last mile</span>
-        </div>
-      </section>
+      <TickerLive />
 
       <section className="section shell" id="why">
-        <div className="section-kicker">THE CASE FOR CLARITY</div>
-        <div className="split-heading">
+        <div className="section-kicker" data-reveal>THE CASE FOR CLARITY</div>
+        <div className="split-heading" data-reveal>
           <h2>When the water<br /><em>moves,</em> context matters.</h2>
           <p>Flood response is not a single-model problem. It is a handoff problem: from a sensor to a forecaster, from a forecast to a family, from uncertainty to a decision.</p>
         </div>
         <div className="pillar-grid">
-          {pillars.map((pillar) => (
-            <article className="pillar" key={pillar.number}>
+          {pillars.map((pillar, i) => (
+            <article className="pillar" key={pillar.number} data-reveal style={{ transitionDelay: `${i * 120}ms` }}>
               <span className="pillar-number">{pillar.number}</span>
               <h3>{pillar.title}</h3>
               <p>{pillar.text}</p>
-              <span className="pillar-arrow">↗</span>
+              <span className="pillar-arrow">{Icon.arrow}</span>
             </article>
           ))}
         </div>
       </section>
 
+      <GridLive />
+
       <section className="feature-band" id="how">
         <div className="shell feature-inner">
-          <div>
+          <div data-reveal>
             <div className="section-kicker light">THE HYDROSENTINEL LOOP</div>
             <h2>Intelligence that<br /><em>earns trust.</em></h2>
-            <p>Every alert keeps a trail: the data, the model, the uncertainty, and the reason it matters now.</p>
-            <Link className="button button-light" href="/featured">See the command center <span>→</span></Link>
+            <p>Every alert keeps a trail: the data, the model, the uncertainty, the evidence it cites, and the reason it matters now.</p>
+            <Link className="button button-light" href="/featured?tab=agent">Watch the agent work {Icon.arrow}</Link>
           </div>
-          <div className="loop-diagram">
-            <div className="loop-node node-a"><span>01</span> Observe</div>
-            <div className="loop-node node-b"><span>02</span> Forecast</div>
-            <div className="loop-node node-c"><span>03</span> Explain</div>
-            <div className="loop-node node-d"><span>04</span> Act</div>
-            <div className="loop-core">H<span>↗</span></div>
+          <div className="loop-diagram" data-reveal>
+            {loop.map((node, i) => (
+              <div key={node.n} className={`loop-node node-${"abcd"[i]}`}><span>{node.n}</span> {node.label}</div>
+            ))}
+            <div className="loop-core">H<span className="lp-core-icon">{Icon.spark}</span></div>
             <div className="loop-arc arc-a" /><div className="loop-arc arc-b" />
+            <div className="loop-orbit" aria-hidden><i /></div>
           </div>
         </div>
       </section>
 
-      <section className="closing shell">
+      <section className="closing shell" data-reveal>
         <div className="closing-mark">H</div>
         <div>
           <div className="section-kicker">THE FIRST STEP IS SEEING IT</div>
           <h2>Let&apos;s make the<br /><em>next hour count.</em></h2>
         </div>
-        <Link className="button button-primary" href="/featured">Enter HydroSentinel <span>↗</span></Link>
+        <Link className="button button-primary" href="/featured">Enter HydroSentinel {Icon.arrow}</Link>
       </section>
 
       <footer className="footer shell">
         <span>HydroSentinel / 2026</span>
-        <span>Built for a safer tomorrow.</span>
-        <span>Meta AI Developer Hackathon</span>
+        <span>Data: GloFAS via Open-Meteo, GDACS, Environment Agency</span>
+        <span>Meta Global AI Developer Hackathon</span>
       </footer>
     </main>
   );
