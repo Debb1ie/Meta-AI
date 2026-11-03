@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CountUp } from "../landing";
 import { AgentCard, AgentView, useAgent } from "./agent";
 import { AskView } from "./ask";
 import { StationTechnical } from "./diagnostics";
@@ -25,9 +24,9 @@ const TABS: Tab[] = ["today", "agent", "stations", "outlook", "ask", "tools"];
 const TITLES: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Live gauges", outlook: "PH Outlook", ask: "Ask", tools: "Tools" };
 const KICKERS: Record<Tab, string> = {
   today: "Live overview",
-  agent: "Muse Spark · tool calling · verified",
-  stations: "Measured · every 15 min",
-  outlook: "Philippines · GloFAS model",
+  agent: "Muse Spark agent with verified answers",
+  stations: "Measured every 15 minutes",
+  outlook: "Philippines, GloFAS model",
   ask: "Analyst",
   tools: "Toolkit & system",
 };
@@ -293,7 +292,7 @@ export default function Featured() {
       <aside className="ios-sidebar">
         <Link className="ios-brand" href="/" title="HydroSentinel home">
           <span className="brand-mark">H</span>
-          <span>Hydro<b>Sentinel</b><small>COMMAND CENTER</small></span>
+          <span>Hydro<b>Sentinel</b><small>Command center</small></span>
         </Link>
         <nav aria-label="Sections">
           {TABS.map((t, i) => (
@@ -316,7 +315,7 @@ export default function Featured() {
           <button className="ios-btn ios-rail-theme" onClick={cycleTheme} aria-label={`Appearance: ${theme}`} title="Appearance (T)">
             {theme === "light" ? Icon.sun : theme === "dark" ? Icon.moon : Icon.auto}
           </button>
-          <Link href="/" className="ios-home-btn" title="Back to home">{Icon.back}<span>BACK TO HOME</span></Link>
+          <Link href="/" className="ios-home-btn" title="Back to home">{Icon.back}<span>Back to home</span></Link>
         </div>
       </aside>
 
@@ -459,7 +458,7 @@ function LevelMix({ stations, outlook }: { stations: Station[]; outlook: Outlook
   const total = counts.reduce((s, c) => s + c.gauges + c.rivers, 0);
   return (
     <div className="ios-card">
-      <span className="ios-card-label">Risk mix · {total} monitored</span>
+      <span className="ios-card-label">Risk mix across {total} rivers</span>
       <div className="ios-stack" aria-hidden>
         {counts.map((c) => (c.gauges + c.rivers > 0 ? <i key={c.lvl} className={`lvl-${c.lvl}`} style={{ flex: c.gauges + c.rivers }} /> : null))}
       </div>
@@ -514,7 +513,7 @@ function HazardsCard({ hazards }: { hazards: Hazards | null }) {
   const near = hazards?.near_ph ?? [];
   return (
     <div className="ios-card ios-hazards">
-      <span className="ios-card-label ios-with-icon">{Icon.typhoon}Live hazards · GDACS</span>
+      <span className="ios-card-label ios-with-icon">{Icon.typhoon}Live hazards from GDACS</span>
       {!hazards && <p className="ios-muted ios-small">Loading disaster feeds…</p>}
       {hazards && near.length === 0 && <p className="ios-muted ios-small">No active typhoons or floods near the Philippines.</p>}
       {near.slice(0, 4).map((h) => (
@@ -603,11 +602,11 @@ function TodayView(props: {
           <p>{heroText}</p>
         </div>
         {offline ? (
-          <button className="ios-pill-btn" onClick={props.onRetry}>TRY AGAIN {Icon.refresh}</button>
+          <button className="ios-pill-btn" onClick={props.onRetry}>Try again {Icon.refresh}</button>
         ) : attention.length > 0 ? (
-          <button className="ios-pill-btn" onClick={props.onShowStations}>REVIEW GAUGES {Icon.arrow}</button>
+          <button className="ios-pill-btn" onClick={props.onShowStations}>Review gauges {Icon.arrow}</button>
         ) : riversOnWatch > 0 && topRiver ? (
-          <button className="ios-pill-btn" onClick={() => props.onOpenRiver(topRiver.id)}>SEE PH OUTLOOK {Icon.arrow}</button>
+          <button className="ios-pill-btn" onClick={() => props.onOpenRiver(topRiver.id)}>See PH outlook {Icon.arrow}</button>
         ) : null}
       </section>
 
@@ -713,7 +712,7 @@ function Tile(props: { icon?: React.ReactNode; label: string; value: number | nu
   return (
     <div className={`ios-tile ${props.emphasis ? "is-emphasis" : ""}`}>
       <span className="ios-with-icon">{props.icon}{props.label}</span>
-      {props.loading ? <i className="ios-skeleton" /> : <strong><CountUp value={props.value} digits={props.digits ?? 0} />{props.unit && shown !== "—" && <sup>{props.unit}</sup>}</strong>}
+      {props.loading ? <i className="ios-skeleton" /> : <strong>{shown}{props.unit && shown !== "—" && <sup>{props.unit}</sup>}</strong>}
       <small>{props.note}</small>
     </div>
   );
@@ -899,8 +898,8 @@ function ThresholdCard({ station, onChanged }: { station: Station; onChanged: ()
             placeholder="Where do these levels come from?" aria-label="Threshold source" />
           {error && <p className="ios-error">{error}</p>}
           <div className="ios-form-row ios-form-end">
-            <button className="ios-text-btn" onClick={() => { setEditing(false); setError(null); }}>CANCEL</button>
-            <button className="ios-primary ios-primary-inline" onClick={save} disabled={saving || draft.source.trim().length < 3}>{saving ? "SAVING…" : "SAVE"}</button>
+            <button className="ios-text-btn" onClick={() => { setEditing(false); setError(null); }}>Cancel</button>
+            <button className="ios-primary ios-primary-inline" onClick={save} disabled={saving || draft.source.trim().length < 3}>{saving ? "Saving…" : "Save"}</button>
           </div>
         </>
       ) : (

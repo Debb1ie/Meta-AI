@@ -166,14 +166,14 @@ function Provenance({ report }: { report: FullReport }) {
       </dl>
       <div className="ios-form-row">
         <a className="ios-text-btn" href={`${API_URL}/api/stations/${encodeURIComponent(st.id)}/export.csv`} download>
-          {Icon.download}ALL READINGS (CSV)
+          {Icon.download}All readings (CSV)
         </a>
         <button
           className="ios-text-btn"
           onClick={() => downloadCsv(`${st.id}-hourly-7d.csv`, history.map((h) => ({ time_utc: h.time, water_level_m: h.water_level_m, rainfall_mm: h.rainfall_mm })))}
           disabled={!history.length}
         >
-          {Icon.download}HOURLY 7 DAYS
+          {Icon.download}Hourly, 7 days
         </button>
       </div>
     </div>

@@ -95,7 +95,7 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000
 
 // Plain-language meaning for each risk level, so nobody has to learn the jargon.
 export const LEVEL_INFO: Record<string, { word: string; hint: string }> = {
-  normal: { word: "Calm", hint: "Nothing to do right now." },
+  normal: { word: "Normal", hint: "Nothing to do right now." },
   advisory: { word: "Watch", hint: "Keep an eye on it." },
   warning: { word: "Prepare", hint: "Get your response ready." },
   critical: { word: "Act now", hint: "Follow the local action plan." },

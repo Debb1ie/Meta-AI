@@ -84,7 +84,7 @@ function PhotoCheck({ aiStatus }: { aiStatus: AiStatus | null }) {
 
   return (
     <section className="ios-card ios-tool" id="tool-photo">
-      <span className="ios-card-label">Flood photo check · SAM 3.1</span>
+      <span className="ios-card-label">Flood photo check with SAM 3.1</span>
       <h3>Find floodwater in a photo</h3>
       <p className="ios-muted">Upload a photo from the field. The model outlines the water so you can see how much of the scene is flooded.</p>
       <AiNote aiStatus={aiStatus} />
@@ -142,7 +142,7 @@ function Preparedness({ aiStatus }: { aiStatus: AiStatus | null }) {
 
   return (
     <section className="ios-card ios-tool" id="tool-poster">
-      <span className="ios-card-label">Preparedness · Muse Image</span>
+      <span className="ios-card-label">Preparedness posters with Muse Image</span>
       <h3>Make a community illustration</h3>
       <p className="ios-muted">Generate a simple picture to share with residents before the water rises.</p>
       <AiNote aiStatus={aiStatus} />
@@ -268,6 +268,9 @@ function ImportData({ onImported }: { onImported: () => void }) {
       <p className="ios-muted">
         Upload a CSV with <code>timestamp, station_id, water_level_m, rainfall_mm</code>. We check every row before anything is saved.{" "}
         <a className="ios-inline-link" href={`${API_URL}/api/data/template`} download="hydrosentinel-template.csv">Download template</a>
+        {" "}or{" "}
+        <a className="ios-inline-link" href="/samples/demo-scenario-marikina-typhoon-synthetic.csv" download>try the demo scenario</a>{" "}
+        (a synthetic typhoon at a Marikina gauge, with real-world gaps and one duplicate row). Checking a file is open to everyone; importing it needs the admin key.
       </p>
       <div className="ios-form-row">
         <label className="ios-file">
@@ -329,7 +332,7 @@ function ImportData({ onImported }: { onImported: () => void }) {
       {error && <p className="ios-error">{error}</p>}
       {done && <p className="ios-success ios-with-icon">{Icon.check}{done}</p>}
       <div className="ios-tool-foot">
-        <button className="ios-text-btn is-danger" onClick={resetDemo} disabled={busy}>{Icon.reset}ADD DEMO SCENARIO</button>
+        <button className="ios-text-btn is-danger" onClick={resetDemo} disabled={busy}>{Icon.reset}Add demo scenario</button>
       </div>
     </section>
   );

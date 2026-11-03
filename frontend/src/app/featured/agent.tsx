@@ -180,8 +180,8 @@ export function AlertComposer({ alerts, compact = false }: { alerts: Briefing["a
       <div className="ios-form-row">
         <small className="ios-muted">{text.length} chars · {segments} SMS</small>
         <span className="ios-spacer" />
-        <button className="ios-text-btn" onClick={copy}>{copied ? Icon.check : Icon.download}{copied ? "COPIED" : "COPY"}</button>
-        <button className="ios-text-btn" onClick={share}>{Icon.arrow}SHARE</button>
+        <button className="ios-text-btn" onClick={copy}>{copied ? Icon.check : Icon.download}{copied ? "Copied" : "Copy"}</button>
+        <button className="ios-text-btn" onClick={share}>{Icon.arrow}Share</button>
         <a className="ios-text-btn" href={`sms:?&body=${encodeURIComponent(text)}`}>{Icon.ask}SMS</a>
       </div>
     </div>
@@ -273,7 +273,7 @@ function Poster({ briefing }: { briefing: Briefing }) {
         </figure>
       )}
       {error && <p className="ios-error">{error}</p>}
-      <button className="ios-text-btn" onClick={make} disabled={busy}>{Icon.image}{busy ? "CREATING…" : src ? "MAKE ANOTHER" : "CREATE POSTER"}</button>
+      <button className="ios-text-btn" onClick={make} disabled={busy}>{Icon.image}{busy ? "Creating…" : src ? "Make another" : "Create poster"}</button>
     </div>
   );
 }
@@ -285,7 +285,7 @@ export function AgentCard({ agent, onOpen }: { agent: AgentState; onOpen: () => 
   return (
     <section className="ios-card ios-agent-card">
       <div className="ios-panel-head ios-panel-head-tight">
-        <span className="ios-card-label ios-with-icon">{Icon.spark}Flood-watch agent · Muse Spark</span>
+        <span className="ios-card-label ios-with-icon">{Icon.spark}Flood-watch agent</span>
         {r && <VerifiedBadge v={r.verification} />}
       </div>
       {r ? (
@@ -308,7 +308,7 @@ export function AgentCard({ agent, onOpen }: { agent: AgentState; onOpen: () => 
         <div className="ios-agent-empty">
           <p>{agent.running ? "The agent is investigating now…" : "No briefing yet. The agent checks typhoons, basins, rain and gauges, then writes a cited briefing with alerts in five languages."}</p>
           <button className="ios-primary ios-primary-inline" onClick={() => { onOpen(); if (!agent.running) agent.run(); }}>
-            <span className="ios-with-icon">{Icon.spark}{agent.running ? "WATCH IT WORK" : "RUN THE AGENT"}</span>
+            <span className="ios-with-icon">{Icon.spark}{agent.running ? "Watch it work" : "Run the agent"}</span>
           </button>
         </div>
       )}
@@ -335,7 +335,7 @@ export function AgentView({ agent, configured }: { agent: AgentState; configured
           <div className="ios-panel-head ios-panel-head-tight">
             <strong className="ios-with-icon">{Icon.activity}Investigation</strong>
             <button className="ios-primary ios-primary-inline" onClick={agent.run} disabled={agent.running || configured === false}>
-              <span className="ios-with-icon">{agent.running ? Icon.refresh : Icon.spark}{agent.running ? "RUNNING…" : "RUN AGENT NOW"}</span>
+              <span className="ios-with-icon">{agent.running ? Icon.refresh : Icon.spark}{agent.running ? "Running…" : "Run agent now"}</span>
             </button>
           </div>
           <p className="ios-muted ios-small">

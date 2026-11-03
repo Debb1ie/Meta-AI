@@ -185,7 +185,7 @@ function RiverDetail({ river, onAsk }: { river: PHRiver; onAsk: (question: strin
           className="ios-text-btn"
           onClick={() => downloadCsv(`${river.id}-glofas.csv`, river.series.map((p) => ({ date: p.date, discharge_m3s: p.discharge_m3s, p25_m3s: p.p25_m3s, p75_m3s: p.p75_m3s, is_forecast: p.is_forecast })))}
         >
-          {Icon.download}DOWNLOAD SERIES (CSV)
+          {Icon.download}Download series (CSV)
         </button>
       </div>
 

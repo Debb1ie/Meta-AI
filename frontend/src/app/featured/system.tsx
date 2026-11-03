@@ -124,10 +124,10 @@ export function SystemPanel({ aiStatus, sources, onSynced }: { aiStatus: AiStatu
 
       <div className="ios-form-row">
         <button className="ios-primary ios-primary-inline" onClick={syncNow} disabled={syncing}>
-          <span className="ios-with-icon">{Icon.refresh}{syncing ? "SYNCING…" : "SYNC GAUGES NOW"}</span>
+          <span className="ios-with-icon">{Icon.refresh}{syncing ? "Syncing…" : "Sync gauges now"}</span>
         </button>
-        <button className="ios-text-btn" onClick={ping}>{Icon.activity}PING API</button>
-        {canInstall && <button className="ios-text-btn" onClick={install}>{Icon.install}INSTALL APP</button>}
+        <button className="ios-text-btn" onClick={ping}>{Icon.activity}Ping API</button>
+        {canInstall && <button className="ios-text-btn" onClick={install}>{Icon.install}Install app</button>}
         {installed && <span className="ios-tag is-live">Installed app</span>}
       </div>
       {message && <p className="ios-muted ios-small">{message}</p>}
@@ -140,8 +140,8 @@ export function SystemPanel({ aiStatus, sources, onSynced }: { aiStatus: AiStatu
         </p>
         <form className="ios-form-row" onSubmit={(e) => { e.preventDefault(); setAdminKey(keyDraft.trim()); setKeyState(keyDraft.trim()); setKeyDraft(""); }}>
           <input className="ios-input" type="password" autoComplete="off" placeholder={adminKey ? "Key saved for this session" : "Paste admin key"} value={keyDraft} onChange={(e) => setKeyDraft(e.target.value)} aria-label="Admin key" />
-          <button className="ios-primary ios-primary-inline" type="submit" disabled={!keyDraft.trim()}>UNLOCK</button>
-          {adminKey && <button className="ios-text-btn" type="button" onClick={() => { setAdminKey(""); setKeyState(""); }}>LOCK</button>}
+          <button className="ios-primary ios-primary-inline" type="submit" disabled={!keyDraft.trim()}>Unlock</button>
+          {adminKey && <button className="ios-text-btn" type="button" onClick={() => { setAdminKey(""); setKeyState(""); }}>Lock</button>}
         </form>
       </div>
 
