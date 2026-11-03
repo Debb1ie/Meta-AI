@@ -68,6 +68,7 @@ def chat_json(messages: list[dict], schema: dict, schema_name: str, temperature:
         "model": settings.meta_text_model,
         "messages": messages,
         "temperature": temperature,
+        "max_tokens": settings.meta_max_output_tokens,
         "response_format": {"type": "json_schema", "json_schema": {"name": schema_name, "schema": schema, "strict": True}},
     }
     try:
@@ -94,7 +95,7 @@ def chat_tools(messages: list[dict], tools: list[dict], temperature: float = 0.2
     """One Muse Spark turn with native function calling. Returns (assistant message, metadata);
     the message carries `tool_calls` when the model wants to use a tool."""
     settings = get_settings()
-    payload = {"model": settings.meta_text_model, "messages": messages, "tools": tools, "temperature": temperature}
+    payload = {"model": settings.meta_text_model, "messages": messages, "tools": tools, "temperature": temperature, "max_tokens": settings.meta_max_output_tokens}
     try:
         resp = httpx.post(_url("/chat/completions"), headers=_headers(), json=payload, timeout=settings.meta_timeout_seconds)
     except httpx.TimeoutException as exc:

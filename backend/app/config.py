@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     meta_segmentation_model: str = "sam-3.1"
     meta_image_model: str = "muse-image-1.0"
     meta_timeout_seconds: float = 90.0
+    # Hard cap on tokens a single chat call may generate (reasoning included); a cost guard, not a style limit.
+    meta_max_output_tokens: int = 8000
 
     open_meteo_base_url: str = "https://api.open-meteo.com/v1"
     open_meteo_cache_seconds: int = 900
