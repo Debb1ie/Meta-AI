@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     ea_base_url: str = "https://environment.data.gov.uk/flood-monitoring"
     open_meteo_flood_url: str = "https://flood-api.open-meteo.com/v1"
     glofas_cache_seconds: int = 3 * 3600
+    # Run the flood-watch agent in the background this often (hours); 0 disables. Each run costs a few cents.
+    agent_autorun_hours: float = 3.0
 
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     # Optional regex for extra origins, e.g. Vercel preview URLs: https://hydrosentinel.*\.vercel\.app

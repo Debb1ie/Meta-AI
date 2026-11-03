@@ -3,7 +3,7 @@
 # two `sync: false` values: your Meta Model API key and the Vercel site URL.
 services:
   - type: web
-    name: hydrosentinel-api
+    name: hydrosentinel-ph-api
     runtime: python
     rootDir: backend
     plan: free

@@ -64,7 +64,32 @@ export function formatFlow(v: number | null | undefined) {
   return v == null ? "—" : v >= 100 ? Math.round(v).toLocaleString() : v.toFixed(1);
 }
 
-export type AiStatus ={ configured: boolean; base_url: string; models: Record<string, string> };
+export type Hazard = {
+  id: string;
+  type: "typhoon" | "flood";
+  name: string;
+  alert: "green" | "orange" | "red";
+  country: string;
+  latitude: number;
+  longitude: number;
+  distance_to_ph_km: number;
+  affects_ph: boolean;
+  near_ph: boolean;
+  severity: string | null;
+  from: string;
+  to: string;
+  report_url: string | null;
+};
+
+export type Hazards = {
+  fetched_at: string;
+  stale: boolean;
+  events: Hazard[];
+  near_ph: Hazard[];
+  uk_warnings: { id: string; area: string; severity: string; river: string }[];
+};
+
+export type AiStatus = { configured: boolean; base_url: string; models: Record<string, string> };
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -129,6 +154,8 @@ export function Sparkline({ values, tall = false }: { values: number[]; tall?: b
 export const Icon = {
   today: <svg viewBox="0 0 24 24" aria-hidden><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>,
   stations: <svg viewBox="0 0 24 24" aria-hidden><path d="M2 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M2 20c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M12 3v7M9 7l3 3 3-3" /></svg>,
+  agent: <svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><path d="M12 12 18.4 5.6" /><circle cx="12" cy="12" r="1" /></svg>,
+  typhoon: <svg viewBox="0 0 24 24" aria-hidden><path d="M12 3c-4.5 0-8 2-9 5 2.5-1.6 5.5-2 8-1.2" /><path d="M12 21c4.5 0 8-2 9-5-2.5 1.6-5.5 2-8 1.2" /><circle cx="12" cy="12" r="3" /></svg>,
   outlook: <svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" /></svg>,
   ask: <svg viewBox="0 0 24 24" aria-hidden><path d="M4 5h16v11H9l-5 4z" /><path d="M8 9.5h8M8 12.5h5" /></svg>,
   tools: <svg viewBox="0 0 24 24" aria-hidden><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>,

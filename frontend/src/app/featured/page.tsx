@@ -3,26 +3,28 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AgentCard, AgentView, useAgent } from "./agent";
 import { AskView } from "./ask";
 import { StationTechnical } from "./diagnostics";
-import { OutlookPanel, OutlookView, outlookPoints } from "./outlook";
+import { OutlookPanel, OutlookView, hazardPoints, outlookPoints } from "./outlook";
 import { ShortcutList } from "./system";
 import { ToolsView } from "./tools";
 import {
-  API_URL, AiStatus, Icon, LEVEL_INFO, Outlook, Overview, SourceStatus, Sparkline, Station, Thresholds,
+  API_URL, AiStatus, Hazards, Icon, LEVEL_INFO, Outlook, Overview, SourceStatus, Sparkline, Station, Thresholds,
   api, formatNumber, levelOf, postJson, timeAgo,
 } from "./shared";
 
 const RiverMap = dynamic(() => import("./map"), { ssr: false, loading: () => <div className="ios-map ios-skeleton" style={{ height: 280 }} /> });
 
-type Tab = "today" | "stations" | "outlook" | "ask" | "tools";
+type Tab = "today" | "agent" | "stations" | "outlook" | "ask" | "tools";
 type Theme = "system" | "light" | "dark";
 type Trend = "rising" | "falling" | "steady";
 
-const TABS: Tab[] = ["today", "stations", "outlook", "ask", "tools"];
-const TITLES: Record<Tab, string> = { today: "Today", stations: "Live gauges", outlook: "PH Outlook", ask: "Ask", tools: "Tools" };
+const TABS: Tab[] = ["today", "agent", "stations", "outlook", "ask", "tools"];
+const TITLES: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Live gauges", outlook: "PH Outlook", ask: "Ask", tools: "Tools" };
 const KICKERS: Record<Tab, string> = {
   today: "Live overview",
+  agent: "Muse Spark · tool calling · verified",
   stations: "Measured · every 15 min",
   outlook: "Philippines · GloFAS model",
   ask: "Analyst",
@@ -115,6 +117,8 @@ export default function Featured() {
   const [sources, setSources] = useState<SourceStatus>({});
   const [riverId, setRiverId] = useState<string | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [hazards, setHazards] = useState<Hazards | null>(null);
+  const agent = useAgent();
   const dark = theme === "dark" || (theme === "system" && prefersDark);
 
   const load = useCallback(() => {
@@ -131,6 +135,7 @@ export default function Featured() {
       .then((data) => { setOutlook(data); setOutlookError(null); })
       .catch((err: Error) => setOutlookError(err.message));
     api<SourceStatus>("/api/sources").then(setSources).catch(() => setSources({}));
+    api<Hazards>("/api/hazards").then(setHazards).catch(() => {});
     api<AiStatus>("/api/ai/status").then(setAiStatus).catch(() => setAiStatus(null));
   }, []);
 
@@ -195,7 +200,7 @@ export default function Featured() {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
       if (e.metaKey || e.ctrlKey || e.altKey || el.closest("input, textarea, select, [contenteditable]")) return;
-      if (e.key >= "1" && e.key <= "5") switchTab(TABS[Number(e.key) - 1]);
+      if (e.key >= "1" && e.key <= "6") switchTab(TABS[Number(e.key) - 1]);
       else if (e.key === "r" || e.key === "R") load();
       else if (e.key === "t" || e.key === "T") cycleTheme();
       else if (e.key === "?") setShowShortcuts((v) => !v);
@@ -256,7 +261,8 @@ export default function Featured() {
   const aiLabel = `Muse Spark ${aiStatus?.configured ? "connected" : "not connected"}`;
 
   const headings: Record<Tab, React.ReactNode> = {
-    today: <>{now ? greeting(now) : "Hello"}, <em>Precious.</em></>,
+    today: <>Today&apos;s flood <em>watch.</em></>,
+    agent: <>Flood-watch <em>agent.</em></>,
     stations: <>Live river <em>gauges.</em></>,
     outlook: <>Philippine river <em>outlook.</em></>,
     ask: <>Ask <em>Muse Spark.</em></>,
@@ -264,7 +270,8 @@ export default function Featured() {
   };
 
   const subtitles: Record<Tab, string> = {
-    today: now ? `${now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })} · Here's what needs your attention first.` : "",
+    today: now ? `${greeting(now)} · ${now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })} · Here's what needs attention first.` : "",
+    agent: "Investigates live data with tools, cites every claim, verifies its own numbers, and drafts alerts in five Philippine languages",
     stations: `${stations.length} gauges · UK Environment Agency real-time levels · sorted by urgency`,
     outlook: `${outlook?.rivers.length ?? 17} major basins · daily modelled river flow · 30-day forecast`,
     ask: "Plain-language answers from Muse Spark, grounded in live readings and the PH outlook",
@@ -340,6 +347,9 @@ export default function Featured() {
               riversOnWatch={riversOnWatch.length}
               sources={sources}
               dark={dark}
+              hazards={hazards}
+              agent={agent}
+              onOpenAgent={() => switchTab("agent")}
               onOpenRiver={openRiver}
               tipVisible={tipVisible}
               onDismissTip={dismissTip}
@@ -368,8 +378,9 @@ export default function Featured() {
             />
           )}
           {tab === "outlook" && (
-            <OutlookView outlook={outlook} error={outlookError} selectedId={riverId} dark={dark} onSelect={selectRiver} onAsk={askQuestion} />
+            <OutlookView outlook={outlook} error={outlookError} selectedId={riverId} dark={dark} hazards={hazards} onSelect={selectRiver} onAsk={askQuestion} />
           )}
+          {tab === "agent" && <AgentView agent={agent} configured={aiStatus?.configured} />}
           {tab === "ask" && (
             <AskView stations={stations} aiStatus={aiStatus} contextId={askContext} setContextId={setAskContext} prefill={askPrefill} />
           )}
@@ -452,6 +463,28 @@ function LevelMix({ stations, outlook }: { stations: Station[]; outlook: Outlook
   );
 }
 
+/** Live typhoons and floods near the Philippines (GDACS). */
+function HazardsCard({ hazards }: { hazards: Hazards | null }) {
+  const near = hazards?.near_ph ?? [];
+  return (
+    <div className="ios-card ios-hazards">
+      <span className="ios-card-label ios-with-icon">{Icon.typhoon}Live hazards · GDACS</span>
+      {!hazards && <p className="ios-muted ios-small">Loading disaster feeds…</p>}
+      {hazards && near.length === 0 && <p className="ios-muted ios-small">No active typhoons or floods near the Philippines.</p>}
+      {near.slice(0, 4).map((h) => (
+        <a key={h.id} className="ios-hazard" href={h.report_url ?? "https://www.gdacs.org"} target="_blank" rel="noreferrer">
+          <i className={`is-${h.alert}`}>{h.type === "typhoon" ? Icon.typhoon : Icon.rain}</i>
+          <span>
+            <b>{h.name}</b>
+            <small>{h.alert.toUpperCase()} · {h.affects_ph ? "affects PH" : `${h.distance_to_ph_km.toLocaleString()} km away`}{h.severity ? ` · ${h.severity}` : ""}</small>
+          </span>
+        </a>
+      ))}
+      {hazards && <small className="ios-muted">{hazards.events.length} active worldwide · updated {timeAgo(hazards.fetched_at)}</small>}
+    </div>
+  );
+}
+
 function PipelineCard({ sources, onOpen }: { sources: SourceStatus; onOpen: () => void }) {
   const rows = Object.entries(sources);
   return (
@@ -479,6 +512,9 @@ function TodayView(props: {
   riversOnWatch: number;
   sources: SourceStatus;
   dark: boolean;
+  hazards: Hazards | null;
+  agent: ReturnType<typeof useAgent>;
+  onOpenAgent: () => void;
   onOpenRiver: (id: string) => void;
   tipVisible: boolean;
   onDismissTip: () => void;
@@ -526,6 +562,8 @@ function TodayView(props: {
         ) : null}
       </section>
 
+      <AgentCard agent={props.agent} onOpen={props.onOpenAgent} />
+
       <section className="ios-tiles">
         <Tile icon={Icon.stations} label="Live gauges" value={overview?.station_count} unit="" note="measured every 15 min" loading={waiting} />
         <Tile icon={Icon.up} label="Gauges rising" value={overview?.rising_count} unit="" note="water going up now" loading={waiting} emphasis={!!overview?.rising_count} />
@@ -545,7 +583,7 @@ function TodayView(props: {
             {outlook ? (
               <>
                 <div className="ios-card ios-map-card">
-                  <RiverMap points={outlookPoints(outlook)} onSelect={props.onOpenRiver} dark={props.dark} height={280} />
+                  <RiverMap points={outlookPoints(outlook)} hazards={hazardPoints(props.hazards)} onSelect={props.onOpenRiver} dark={props.dark} height={280} />
                 </div>
                 <OutlookPanel outlook={{ ...outlook, rivers: outlook.rivers.slice(0, 6) }} onOpen={props.onOpenRiver} />
               </>
@@ -568,6 +606,7 @@ function TodayView(props: {
         </div>
 
         <div className="ios-side-col">
+          <HazardsCard hazards={props.hazards} />
           {highest && (
             <button className="ios-card ios-priority" onClick={() => props.onOpenStation(highest.station_id)}>
               <span className="ios-card-label">Top gauge</span>

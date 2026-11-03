@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Icon, LEVEL_INFO, Outlook, PHRiver, TrendIcon, downloadCsv, formatFlow, timeAgo } from "./shared";
+import { Hazards, Icon, LEVEL_INFO, Outlook, PHRiver, TrendIcon, downloadCsv, formatFlow, timeAgo } from "./shared";
 
 const RiverMap = dynamic(() => import("./map"), { ssr: false, loading: () => <div className="ios-map ios-skeleton" style={{ height: 300 }} /> });
 
@@ -93,6 +93,17 @@ function RiverRows({ rivers, selectedId, onOpen }: { rivers: PHRiver[]; selected
 export function OutlookPanel({ outlook, onOpen }: { outlook: Outlook | null; onOpen: (id: string) => void }) {
   if (!outlook) return null;
   return <RiverRows rivers={outlook.rivers} onOpen={onOpen} />;
+}
+
+export function hazardPoints(hazards: Hazards | null) {
+  return (hazards?.near_ph ?? []).map((h) => ({
+    id: h.id,
+    lat: h.latitude,
+    lon: h.longitude,
+    alert: h.alert,
+    title: h.name,
+    detail: `${h.alert.toUpperCase()} alert · ${h.distance_to_ph_km.toLocaleString()} km from PH centre${h.severity ? ` · ${h.severity}` : ""}`,
+  }));
 }
 
 export function outlookPoints(outlook: Outlook) {
@@ -190,6 +201,7 @@ export function OutlookView(props: {
   error: string | null;
   selectedId: string | null;
   dark: boolean;
+  hazards: Hazards | null;
   onSelect: (id: string) => void;
   onAsk: (question: string) => void;
 }) {
@@ -214,7 +226,7 @@ export function OutlookView(props: {
           <div><small>Combined flow</small><b>{formatFlow(totalFlow)}</b><em>m³/s today</em></div>
         </div>
         <div className="ios-card ios-map-card">
-          <RiverMap points={outlookPoints(outlook)} selectedId={selected?.id} onSelect={props.onSelect} dark={props.dark} height={300} />
+          <RiverMap points={outlookPoints(outlook)} hazards={hazardPoints(props.hazards)} selectedId={selected?.id} onSelect={props.onSelect} dark={props.dark} height={300} />
         </div>
         <div className="ios-card ios-method">
           <span className="ios-card-label ios-with-icon">{Icon.info}How this works</span>
