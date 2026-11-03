@@ -14,3 +14,10 @@ node_modules/
 !.env.example
 
 .DS_Store
+
+# nmblr agent-kit (installed locally for documentation workflows)
+.claude/agents/
+.claude/hooks/
+.claude/nmblr/
+.claude/settings.json
+.claude/skills/nmblr-*/
