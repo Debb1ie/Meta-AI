@@ -2,15 +2,35 @@
 
 import { useEffect, useRef, useState } from "react";
 import { API_URL, Icon } from "./featured/shared";
+import { RiverStatus } from "./river-status";
 
 // ---------------------------------------------------------------- live data (landing shows real numbers, not mock-ups)
 
-type LiveRiver = { name: string; region: string; current_m3s: number; trend: string; level: string; peak: { discharge_m3s: number }; thresholds_m3s: { advisory: number } };
-type LiveHazard = { name: string; alert: string; distance_to_ph_km: number; affects_ph: boolean; type: string };
-type LiveBrief = { briefing: { headline: string; overall_level: string; alerts: Record<string, string> }; verification: { numbers_checked: number; numbers_verified: number }; tool_calls: number };
+export type LiveRiver = {
+  id: string;
+  name: string;
+  region: string;
+  latitude: number;
+  longitude: number;
+  current_m3s: number;
+  current_date: string;
+  trend: "rising" | "falling" | "steady";
+  level: string;
+  peak: { date: string; discharge_m3s: number };
+  thresholds_m3s: { advisory: number; warning: number; critical: number };
+  series: { date: string; discharge_m3s: number; is_forecast: boolean }[];
+};
+export type LiveHazard = { name: string; alert: string; distance_to_ph_km: number; affects_ph: boolean; type: string; report_url?: string | null };
+export type LiveBrief = {
+  briefing: { headline: string; overall_level: string; alerts: Record<string, string> };
+  verification: { numbers_checked: number; numbers_verified: number };
+  tool_calls: number;
+  generated_at: string;
+};
 
 export type LiveData = {
   rivers: LiveRiver[];
+  outlookUpdated: string | null;
   hazards: LiveHazard[];
   hazardsWorldwide: number;
   gauges: number | null;
@@ -34,12 +54,12 @@ function getJson<T>(path: string): Promise<T | null> {
 }
 
 export function useLiveData(): LiveData {
-  const [data, setData] = useState<LiveData>({ rivers: [], hazards: [], hazardsWorldwide: 0, gauges: null, brief: null, ready: false });
+  const [data, setData] = useState<LiveData>({ rivers: [], outlookUpdated: null, hazards: [], hazardsWorldwide: 0, gauges: null, brief: null, ready: false });
   useEffect(() => {
     let alive = true;
     (async () => {
       const [outlook, hazards, sources, latest] = await Promise.all([
-        getJson<{ rivers: LiveRiver[] }>("/api/outlook"),
+        getJson<{ rivers: LiveRiver[]; fetched_at: string }>("/api/outlook"),
         getJson<{ near_ph: LiveHazard[]; events: unknown[] }>("/api/hazards"),
         getJson<{ gauges?: { ok: boolean } }>("/api/sources"),
         getJson<{ briefing: LiveBrief | null }>("/api/ai/agent/latest"),
@@ -48,6 +68,7 @@ export function useLiveData(): LiveData {
       if (!alive) return;
       setData({
         rivers: outlook?.rivers ?? [],
+        outlookUpdated: outlook?.fetched_at ?? null,
         hazards: hazards?.near_ph ?? [],
         hazardsWorldwide: hazards?.events.length ?? 0,
         gauges: stations ? stations.length : sources?.gauges ? 10 : null,
@@ -121,101 +142,6 @@ export function CountUp({ value, digits = 0, suffix = "" }: { value: number | nu
     };
   }, [value]);
   return <span ref={ref}>{value == null ? "—" : `${shown.toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: digits })}${suffix}`}</span>;
-}
-
-// ---------------------------------------------------------------- hero 3D scene
-
-function Bars() {
-  return (
-    <div className="lp-bars" aria-hidden>
-      {[28, 40, 34, 52, 46, 61, 58, 72, 88].map((h, i) => <i key={i} style={{ height: `${h}%`, animationDelay: `${i * 80}ms` }} />)}
-    </div>
-  );
-}
-
-export function Hero3D({ live }: { live: LiveData }) {
-  const sceneRef = useRef<HTMLDivElement>(null);
-
-  // Mouse tilt + scroll drift, written to CSS variables (no React re-render per frame).
-  useEffect(() => {
-    const el = sceneRef.current;
-    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let raf = 0;
-    const target = { x: 0, y: 0 };
-    const cur = { x: 0, y: 0 };
-    const onMove = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      target.x = ((e.clientX - r.left) / r.width - 0.5) * 2;
-      target.y = ((e.clientY - r.top) / r.height - 0.5) * 2;
-    };
-    const tick = () => {
-      cur.x += (target.x - cur.x) * 0.06;
-      cur.y += (target.y - cur.y) * 0.06;
-      el.style.setProperty("--mx", cur.x.toFixed(3));
-      el.style.setProperty("--my", cur.y.toFixed(3));
-      el.style.setProperty("--sy", String(Math.min(1, window.scrollY / 700).toFixed(3)));
-      raf = requestAnimationFrame(tick);
-    };
-    window.addEventListener("pointermove", onMove);
-    raf = requestAnimationFrame(tick);
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  const river = live.rivers[0];
-  const hazard = live.hazards.find((h) => h.type === "typhoon") ?? live.hazards[0];
-  const brief = live.brief;
-
-  return (
-    <div className="lp-scene" ref={sceneRef} aria-label="Live view of the HydroSentinel network">
-      <div className="lp-sky" />
-      <div className="lp-floor" />
-      <div className="lp-horizon" />
-      <div className="lp-radar" aria-hidden><i /><i /><i /></div>
-
-      <div className="lp-stage">
-        <article className="lp-card lp-card-main" style={{ "--z": "120px", "--d": "0s" } as React.CSSProperties}>
-          <div className="lp-card-head"><span className="lp-live" />PH BASIN · LIVE MODEL</div>
-          <strong>{river ? river.name : "Connecting…"}</strong>
-          <div className="lp-big">
-            {river ? <CountUp value={river.current_m3s} digits={river.current_m3s < 100 ? 1 : 0} /> : "—"}
-            <small>m³/s</small>
-            {river && <b className={river.trend === "rising" ? "is-up" : ""}>{river.trend === "rising" ? Icon.up : river.trend === "falling" ? Icon.down : Icon.flat}{river.trend}</b>}
-          </div>
-          <Bars />
-          <div className="lp-card-foot">
-            <span>7-day peak</span>
-            <strong>{river ? `${Math.round(river.peak.discharge_m3s).toLocaleString()} m³/s` : "—"}</strong>
-          </div>
-        </article>
-
-        <article className="lp-card lp-card-hazard" style={{ "--z": "220px", "--d": "-1.2s" } as React.CSSProperties}>
-          <div className="lp-card-head lp-with-icon">{Icon.typhoon}GDACS HAZARD</div>
-          <strong>{hazard ? hazard.name : live.ready ? "No active hazards nearby" : "Scanning…"}</strong>
-          <small>{hazard ? `${hazard.alert.toUpperCase()} · ${hazard.affects_ph ? "affects PH" : `${hazard.distance_to_ph_km.toLocaleString()} km away`}` : "Typhoons & floods, live"}</small>
-        </article>
-
-        <article className="lp-card lp-card-agent" style={{ "--z": "180px", "--d": "-2.4s" } as React.CSSProperties}>
-          <div className="lp-card-head lp-with-icon">{Icon.spark}MUSE SPARK AGENT</div>
-          <strong>{brief ? `${brief.verification.numbers_verified}/${brief.verification.numbers_checked} numbers verified` : "Tool-calling agent"}</strong>
-          <small>{brief ? `${brief.tool_calls} tool calls · cited briefing` : "Investigates, cites, verifies"}</small>
-        </article>
-
-        <article className="lp-card lp-card-sms" style={{ "--z": "260px", "--d": "-3.1s" } as React.CSSProperties}>
-          <div className="lp-card-head lp-with-icon">{Icon.ask}SMS · FILIPINO</div>
-          <p>{brief?.briefing.alerts.fil?.slice(0, 120) ?? "Mga alerto sa limang wika ng Pilipinas — Filipino, Cebuano, Ilocano, Hiligaynon at English."}{brief && brief.briefing.alerts.fil.length > 120 ? "…" : ""}</p>
-        </article>
-
-        <article className="lp-card lp-card-chips" style={{ "--z": "90px", "--d": "-0.6s" } as React.CSSProperties}>
-          {["EN", "FIL", "CEB", "ILO", "HIL"].map((l) => <span key={l}>{l}</span>)}
-        </article>
-      </div>
-
-      <div className="lp-scene-caption">LIVE DATA · {live.rivers.length || 17} PH BASINS · {live.gauges ?? 10} GAUGES · GDACS</div>
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------- live ticker
@@ -292,7 +218,7 @@ export function ScrollGrid3D({ live }: { live: LiveData }) {
     <section className="lp-grid-section" ref={ref} id="inside">
       <div className="lp-grid-sticky">
         <div className="shell lp-grid-head">
-          <div className="section-kicker">EVERYTHING INSIDE, LIVE</div>
+          <div className="section-kicker">What you get</div>
           <h2>Twelve systems.<br /><em>One calm screen.</em></h2>
         </div>
         <div className="lp-grid-stage">
@@ -320,7 +246,7 @@ export function ScrollGrid3D({ live }: { live: LiveData }) {
 // ---------------------------------------------------------------- composition (each piece shares the cached requests)
 
 export function HeroLive() {
-  return <Hero3D live={useLiveData()} />;
+  return <RiverStatus live={useLiveData()} />;
 }
 
 export function TickerLive() {

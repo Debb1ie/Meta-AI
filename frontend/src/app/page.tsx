@@ -55,23 +55,23 @@ export default function Home() {
 
       <section className="hero shell">
         <div className="hero-copy">
-          <div className="eyebrow lp-rise"><span className="pulse-dot" /> EARLY WARNING, REIMAGINED</div>
-          <h1 className="lp-rise" style={{ animationDelay: "80ms" }}>Give communities<br /><em>more time.</em></h1>
-          <p className="hero-lede lp-rise" style={{ animationDelay: "160ms" }}>
+          <div className="eyebrow"><span className="pulse-dot" /> Flood early warning for the Philippines</div>
+          <h1>Give communities<br /><em>more time.</em></h1>
+          <p className="hero-lede">
             HydroSentinel watches Philippine rivers, typhoons and rainfall around the clock. A Muse Spark agent turns the
             live data into a verified briefing and alerts people can read in their own language.
           </p>
-          <div className="hero-actions lp-rise" style={{ animationDelay: "240ms" }}>
+          <div className="hero-actions">
             <Link className="button button-primary" href="/featured">Explore the live dashboard {Icon.arrow}</Link>
             <a className="text-link" href="#inside">See what&apos;s inside {Icon.down}</a>
           </div>
-          <nav className="lp-jump lp-rise" style={{ animationDelay: "300ms" }} aria-label="Jump straight to a feature">
+          <nav className="lp-jump" aria-label="Jump straight to a feature">
             <span>Jump straight in</span>
             {JUMP.map((j) => <Link key={j.label} href={j.href}>{j.icon}{j.label}</Link>)}
           </nav>
-          <div className="hero-note lp-rise" style={{ animationDelay: "320ms" }}>
+          <div className="hero-note">
             <span className="meta-spark">{Icon.spark}</span>
-            Built with Meta Model API · Muse Spark · SAM 3.1 · Muse Image
+            Built with Meta&apos;s Muse Spark, SAM 3.1 and Muse Image through the Meta Model API
           </div>
         </div>
         <HeroLive />
@@ -80,7 +80,7 @@ export default function Home() {
       <TickerLive />
 
       <section className="section shell" id="why">
-        <div className="section-kicker" data-reveal>THE CASE FOR CLARITY</div>
+        <div className="section-kicker" data-reveal>Why it matters</div>
         <div className="split-heading" data-reveal>
           <h2>When the water<br /><em>moves,</em> context matters.</h2>
           <p>Flood response is not a single-model problem. It is a handoff problem: from a sensor to a forecaster, from a forecast to a family, from uncertainty to a decision.</p>
@@ -102,7 +102,7 @@ export default function Home() {
       <section className="feature-band" id="how">
         <div className="shell feature-inner">
           <div data-reveal>
-            <div className="section-kicker light">THE HYDROSENTINEL LOOP</div>
+            <div className="section-kicker light">How it works</div>
             <h2>Intelligence that<br /><em>earns trust.</em></h2>
             <p>Every alert keeps a trail: the data, the model, the uncertainty, the evidence it cites, and the reason it matters now.</p>
             <Link className="button button-light" href="/featured?tab=agent">Watch the agent work {Icon.arrow}</Link>
@@ -136,7 +136,7 @@ export default function Home() {
       <section className="closing shell" data-reveal>
         <div className="closing-mark">H</div>
         <div>
-          <div className="section-kicker">THE FIRST STEP IS SEEING IT</div>
+          <div className="section-kicker">Try it now</div>
           <h2>Let&apos;s make the<br /><em>next hour count.</em></h2>
         </div>
         <Link className="button button-primary" href="/featured">Enter HydroSentinel {Icon.arrow}</Link>

@@ -1,11 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist_Mono, Public_Sans } from "next/font/google";
 import "./globals.css";
 import { PwaRegister } from "./pwa-register";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Public Sans: a civic, highly legible sans for interface text and numbers.
+// Fraunces: a warm display serif for the few lines that should feel human.
+const publicSans = Public_Sans({
+  variable: "--font-text",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["opsz", "SOFT"],
 });
 
 const geistMono = Geist_Mono({
@@ -43,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${publicSans.variable} ${fraunces.variable} ${geistMono.variable} antialiased`}
       >
         {children}
         <PwaRegister />
