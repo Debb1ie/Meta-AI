@@ -208,6 +208,7 @@ export const Icon = {
   keyboard: <svg viewBox="0 0 24 24" aria-hidden><rect x="2.5" y="6" width="19" height="12" rx="2" /><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7.5 14h9" /></svg>,
   server: <svg viewBox="0 0 24 24" aria-hidden><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6" /></svg>,
   activity: <svg viewBox="0 0 24 24" aria-hidden><path d="M3 12h4l3-8 4 16 3-8h4" /></svg>,
+  analytics: <svg viewBox="0 0 24 24" aria-hidden><path d="M4 19V5M4 19h17" /><path d="m7 15 3-4 3 2 5-7" /></svg>,
   database: <svg viewBox="0 0 24 24" aria-hidden><ellipse cx="12" cy="5.5" rx="8" ry="3" /><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" /></svg>,
   cpu: <svg viewBox="0 0 24 24" aria-hidden><rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9.5 9.5h5v5h-5zM9 2.5V6M15 2.5V6M9 18v3.5M15 18v3.5M2.5 9H6M2.5 15H6M18 9h3.5M18 15h3.5" /></svg>,
   rain: <svg viewBox="0 0 24 24" aria-hidden><path d="M7 15a4.5 4.5 0 1 1 1-8.9A6 6 0 0 1 19.5 9 3.5 3.5 0 0 1 18 15.8" /><path d="M8 18.5l-1 2M12 17.5l-1 3M16 18.5l-1 2" /></svg>,

@@ -299,7 +299,13 @@ h1 em,h2 em { color:var(--teal); font-family:Georgia, serif; font-weight:400; }
 .ios-setup a, .ios-inline-link { color:var(--tint); }
 .ios code { padding:1px 5px; border-radius:5px; background:var(--fill); font-family:var(--font-geist-mono),ui-monospace,monospace; font-size:.9em; }
 .ios-answer { max-width:86%!important; white-space:normal!important; }
-.ios-answer > p { margin:0; }
+.ios-answer > p { margin:0; line-height:1.5; }
+.ios-answer > p + p { margin-top:8px; }
+.ios-answer-status { margin-bottom:8px; }
+.ios-key-points { display:grid; gap:4px; margin:10px 0 0; padding-left:18px; line-height:1.45; }
+.ios-key-points li::marker { color:var(--tint); }
+.ios-answer-heading { display:block; margin-top:14px; font-size:13px; color:var(--label2); }
+.ios-answer-heading + .ios-actions { margin-top:6px; }
 .ios-actions { display:grid; gap:8px; margin:12px 0 0; padding:0; list-style:none; }
 .ios-actions li { display:grid; gap:2px; padding:10px 12px; border-radius:12px; background:var(--bg); }
 .ios-actions small { color:var(--label2); font-size:13px; }
@@ -490,6 +496,11 @@ html { -webkit-text-size-adjust:100%; }
 .ios-kpis small { color:var(--label2); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
 .ios-kpis b { font-size:24px; font-weight:500; letter-spacing:-.04em; }
 .ios-kpis em { overflow:hidden; color:var(--label3); font-size:11px; font-style:normal; white-space:nowrap; text-overflow:ellipsis; }
+.ios-analytics-chart { display:block; width:100%; min-height:190px; margin-top:8px; overflow:visible; }
+.ios-analytics-chart .ios-flow-past { fill:none; stroke:var(--tint); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+.ios-analytics-dot { fill:var(--tint); stroke:var(--card); stroke-width:2; }
+.ios-analytics .ios-table td.is-good, .ios-analytics .ios-kpis .is-good { color:var(--green); }
+.ios-analytics .ios-table td.is-weak { color:var(--orange); }
 
 /* maps */
 .ios-map-card { padding:0; overflow:hidden; }

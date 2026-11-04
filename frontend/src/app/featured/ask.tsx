@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AiStatus, Icon, Station, postJson } from "./shared";
+import { AiStatus, Icon, LEVEL_INFO, Station, postJson } from "./shared";
 
-// Mirrors RESPONSE_SCHEMA in backend/app/ai/analyst.py.
+// Mirrors RESPONSE_SCHEMA in backend/app/ai/analyst.py. status and key_points are optional
+// so answers from an older backend still render.
 type Analysis = {
   summary: string;
+  status?: "normal" | "advisory" | "warning" | "critical" | "unknown";
+  key_points?: string[];
   observations: { station: string; statement: string }[];
   predictions: { station: string; horizon_h: number; statement: string }[];
   uncertainty: string[];
@@ -32,9 +35,19 @@ function AnswerBubble({ answer, model }: { answer: Analysis; model: string }) {
   const hasDetails =
     answer.observations.length + answer.predictions.length + answer.uncertainty.length + answer.data_limitations.length > 0 ||
     !!answer.risk_explanation;
+  const level = answer.status && answer.status !== "unknown" ? LEVEL_INFO[answer.status] : undefined;
+  const keyPoints = answer.key_points ?? [];
   return (
     <div className="ios-bubble assistant ios-answer">
-      <p>{answer.summary}</p>
+      {level && <span className={`ios-chip lvl-${answer.status} ios-answer-status`}>{level.word}</span>}
+      {answer.summary
+        .split(/\n{2,}/)
+        .filter(Boolean)
+        .map((para, i) => <p key={i}>{para}</p>)}
+      {keyPoints.length > 0 && (
+        <ul className="ios-key-points">{keyPoints.map((k, i) => <li key={i}>{k}</li>)}</ul>
+      )}
+      {answer.recommended_actions.length > 0 && <strong className="ios-answer-heading">What to do</strong>}
       {answer.recommended_actions.length > 0 && (
         <ul className="ios-actions">
           {answer.recommended_actions.map((a, i) => (
@@ -48,23 +61,23 @@ function AnswerBubble({ answer, model }: { answer: Analysis; model: string }) {
       )}
       {hasDetails && (
         <details>
-          <summary>Show the evidence</summary>
-          {answer.risk_explanation && <Section title="Why this risk level"><p>{answer.risk_explanation}</p></Section>}
+          <summary>See the numbers behind this</summary>
+          {answer.risk_explanation && <Section title="Why we say this"><p>{answer.risk_explanation}</p></Section>}
           {answer.observations.length > 0 && (
-            <Section title="What we measured">
+            <Section title="Right now">
               <ul>{answer.observations.map((o, i) => <li key={i}><b>{o.station}:</b> {o.statement}</li>)}</ul>
             </Section>
           )}
           {answer.predictions.length > 0 && (
-            <Section title="What we predict">
-              <ul>{answer.predictions.map((p, i) => <li key={i}><b>{p.station}, {p.horizon_h}h:</b> {p.statement}</li>)}</ul>
+            <Section title="What's expected">
+              <ul>{answer.predictions.map((p, i) => <li key={i}><b>{p.station}, in {p.horizon_h} hours:</b> {p.statement}</li>)}</ul>
             </Section>
           )}
           {answer.uncertainty.length > 0 && (
             <Section title="How sure we are"><ul>{answer.uncertainty.map((u, i) => <li key={i}>{u}</li>)}</ul></Section>
           )}
           {answer.data_limitations.length > 0 && (
-            <Section title="Data limitations"><ul>{answer.data_limitations.map((u, i) => <li key={i}>{u}</li>)}</ul></Section>
+            <Section title="Good to know"><ul>{answer.data_limitations.map((u, i) => <li key={i}>{u}</li>)}</ul></Section>
           )}
         </details>
       )}

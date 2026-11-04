@@ -10,6 +10,7 @@ import { OutlookPanel, OutlookView, hazardPoints, outlookPoints } from "./outloo
 import { ShortcutList } from "./system";
 import { LayersView } from "./layers";
 import { ToolsView } from "./tools";
+import { AnalyticsView } from "./analytics";
 import {
   API_URL, AiStatus, Hazards, Icon, LEVEL_INFO, Outlook, Overview, SourceStatus, Sparkline, Station, Thresholds,
   api, formatNumber, levelOf, postJson, timeAgo,
@@ -17,20 +18,21 @@ import {
 
 const RiverMap = dynamic(() => import("./map"), { ssr: false, loading: () => <div className="ios-map ios-skeleton" style={{ height: 280 }} /> });
 
-type Tab = "today" | "agent" | "stations" | "outlook" | "layers" | "ask" | "tools";
+type Tab = "today" | "agent" | "stations" | "outlook" | "layers" | "analytics" | "ask" | "tools";
 type Theme = "system" | "light" | "dark";
 type Trend = "rising" | "falling" | "steady";
 
-const TABS: Tab[] = ["today", "agent", "stations", "outlook", "layers", "ask", "tools"];
-const TITLES: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Live gauges", outlook: "PH Outlook", layers: "3D layers", ask: "Ask", tools: "Tools" };
-// Bottom tab bar on phones: seven tabs need short labels.
-const SHORT: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Gauges", outlook: "Outlook", layers: "3D", ask: "Ask", tools: "Tools" };
+const TABS: Tab[] = ["today", "agent", "stations", "outlook", "layers", "analytics", "ask", "tools"];
+const TITLES: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Live gauges", outlook: "PH Outlook", layers: "3D layers", analytics: "Analytics", ask: "Ask", tools: "Tools" };
+// Bottom tab bar on phones: sections need short labels.
+const SHORT: Record<Tab, string> = { today: "Today", agent: "Agent", stations: "Gauges", outlook: "Outlook", layers: "3D", analytics: "Analytics", ask: "Ask", tools: "Tools" };
 const KICKERS: Record<Tab, string> = {
   today: "Live overview",
   agent: "Muse Spark agent with verified answers",
   stations: "Measured every 15 minutes",
   outlook: "Philippines, GloFAS model",
   layers: "Terrain, rain and river flow, stacked",
+  analytics: "Forecast performance and data quality",
   ask: "Analyst",
   tools: "Toolkit & system",
 };
@@ -208,7 +210,7 @@ export default function Featured() {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
       if (e.metaKey || e.ctrlKey || e.altKey || el.closest("input, textarea, select, [contenteditable]")) return;
-      if (e.key >= "1" && e.key <= "7") switchTab(TABS[Number(e.key) - 1]);
+      if (e.key >= "1" && e.key <= "8") switchTab(TABS[Number(e.key) - 1]);
       else if (e.key === "r" || e.key === "R") load();
       else if (e.key === "t" || e.key === "T") cycleTheme();
       else if (e.key === "?") setShowShortcuts((v) => !v);
@@ -279,6 +281,7 @@ export default function Featured() {
     stations: <>Live river <em>gauges.</em></>,
     outlook: <>Philippine river <em>outlook.</em></>,
     layers: <>Flood risk in <em>layers.</em></>,
+    analytics: <>Performance <em>analytics.</em></>,
     ask: <>Ask <em>Muse Spark.</em></>,
     tools: <>Field <em>tools.</em></>,
   };
@@ -289,6 +292,7 @@ export default function Featured() {
     stations: `${stations.length} gauges · UK Environment Agency real-time levels · sorted by urgency`,
     outlook: `${outlook?.rivers.length ?? 17} major basins · daily modelled river flow · 30-day forecast`,
     layers: "Five live map layers over the Philippines, from terrain up to a combined flood-watch index. Orbit, peel layers apart and hover any point to read its value",
+    analytics: "Held-out forecast skill, interval coverage, model selection and gauge evaluation results",
     ask: "Plain-language answers from Muse Spark, grounded in live readings and the PH outlook",
     tools: "Pipeline status, field photos, community illustrations and your own data",
   };
@@ -398,6 +402,7 @@ export default function Featured() {
             <OutlookView outlook={outlook} error={outlookError} selectedId={riverId} dark={dark} hazards={hazards} onSelect={selectRiver} onAsk={askQuestion} />
           )}
           {tab === "layers" && <LayersView outlook={outlook} error={outlookError} />}
+          {tab === "analytics" && <AnalyticsView />}
           {tab === "agent" && <AgentView agent={agent} configured={aiStatus?.configured} />}
           {tab === "ask" && (
             <AskView stations={stations} aiStatus={aiStatus} contextId={askContext} setContextId={setAskContext} prefill={askPrefill} />

@@ -39,3 +39,22 @@ def test_budget_guard_serves_fresh_briefing_and_caps_runs(monkeypatch):
     assert agent.budget_reason(cooldown_minutes=0, max_runs_per_day=40) is None
     monkeypatch.setattr(agent, "_run_times", [time.time()] * 40)
     assert "Daily limit" in agent.budget_reason(cooldown_minutes=0, max_runs_per_day=40)
+
+
+def test_verify_accepts_the_plain_language_style_the_prompt_asks_for():
+    # The style guide's own example sentence: dates in words, no ids, nothing to flag.
+    evidence = {"E1": {"result": {"name": "Flood in Philippines", "from": "2026-10-29", "to": "2026-11-03"}}}
+    text = "There's a minor flood event reported in the Philippines from Oct 29 to Nov 3, but nothing serious."
+    v = verify(_briefing((text, ["E1"])), evidence)
+    assert v["numbers_checked"] == 0
+    assert v["score"] == 1.0
+
+
+def test_prompts_carry_the_plain_language_guide():
+    from app.ai import agent, analyst
+    from app.ai.style import PLAIN_LANGUAGE
+
+    assert PLAIN_LANGUAGE in analyst.SYSTEM_PROMPT
+    assert PLAIN_LANGUAGE in agent.BRIEFING_GUIDE
+    assert {"status", "key_points"} <= set(analyst.RESPONSE_SCHEMA["required"])
+    assert set(analyst.RESPONSE_SCHEMA["required"]) == set(analyst.RESPONSE_SCHEMA["properties"])

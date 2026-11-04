@@ -56,7 +56,7 @@ const TOOL_LABEL: Record<string, string> = {
   get_gauge: "Inspected a gauge forecast",
 };
 
-const WHO_LABEL: Record<Action["who"], string> = { residents: "Residents", barangay: "Barangay", lgu_drrmo: "LGU / DRRMO", operators: "Operators" };
+const WHO_LABEL: Record<Action["who"], string> = { residents: "Residents", barangay: "Barangay", lgu_drrmo: "Local disaster office", operators: "App team" };
 const PRIORITY_LABEL: Record<Action["priority"], string> = { immediate: "Do now", soon: "Do soon", monitor: "Keep watching" };
 
 // ---------------------------------------------------------------- state
@@ -400,7 +400,7 @@ export function AgentView({ agent, configured }: { agent: AgentState; configured
             </div>
 
             <div className="ios-card">
-              <strong>Situation</strong>
+              <strong>What's happening</strong>
               <ul className="ios-claims">
                 {r.briefing.situation.map((c, i) => <li key={i}>{c.text} <Cites ids={c.evidence} onOpen={openEvidence} /></li>)}
               </ul>
@@ -408,12 +408,12 @@ export function AgentView({ agent, configured }: { agent: AgentState; configured
 
             {r.briefing.watchlist.length > 0 && (
               <div className="ios-card">
-                <strong>Watchlist</strong>
+                <strong>Places to watch</strong>
                 {r.briefing.watchlist.map((w, i) => (
                   <div className="ios-watch" key={i}>
                     <span className={`ios-dot lvl-${w.level}`} />
                     <div>
-                      <b>{w.name}</b> <small className="ios-muted">{w.kind === "ph_basin" ? "PH basin" : w.kind === "gauge" ? "Gauge" : "Hazard"}</small>
+                      <b>{w.name}</b> <small className="ios-muted">{w.kind === "ph_basin" ? "River" : w.kind === "gauge" ? "River sensor" : "Weather event"}</small>
                       <p>{w.reason} <Cites ids={w.evidence} onOpen={openEvidence} /></p>
                     </div>
                   </div>
@@ -423,7 +423,7 @@ export function AgentView({ agent, configured }: { agent: AgentState; configured
 
             {r.briefing.actions.length > 0 && (
               <div className="ios-card">
-                <strong>Recommended actions</strong>
+                <strong>What to do</strong>
                 <ul className="ios-actions">
                   {r.briefing.actions.map((a, i) => (
                     <li key={i}>
@@ -445,7 +445,7 @@ export function AgentView({ agent, configured }: { agent: AgentState; configured
 
             {r.briefing.limitations.length > 0 && (
               <div className="ios-card">
-                <strong>Limitations</strong>
+                <strong>Good to know</strong>
                 <ul className="ios-claims ios-muted">{r.briefing.limitations.map((l, i) => <li key={i}>{l}</li>)}</ul>
               </div>
             )}

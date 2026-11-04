@@ -4,9 +4,13 @@ import json
 from datetime import datetime, timezone
 
 from . import meta_client
+from .style import PLAIN_LANGUAGE
 
-SYSTEM_PROMPT = """You are HydroSentinel's flood analyst. You explain river forecasts to community \
-members and emergency coordinators.
+SYSTEM_PROMPT = """You are HydroSentinel's flood assistant. You answer questions about river levels, \
+rain and flood risk for community members and local disaster officers in the Philippines.
+
+Reply in the same language the person wrote in: English, Filipino, Taglish, Cebuano, Ilocano or Hiligaynon. \
+Match their tone; a casual question gets a casual, friendly answer.
 
 Rules:
 - Use ONLY the JSON context provided. Never invent readings, forecasts, thresholds, rainfall amounts or locations.
@@ -22,13 +26,27 @@ intervals) and UNCERTAINTY (interval width, model skill vs persistence, data age
 local authorities for evacuation orders. Do not give guarantees.
 - If the question cannot be answered from the context, say so in the summary and leave lists empty \
 rather than guessing.
-"""
+
+WHERE THINGS GO
+- summary: the reply itself, 2-4 short conversational sentences that directly answer the question. This is \
+what most people read, so it must make sense on its own.
+- key_points: up to 4 short plain-language takeaways (one sentence each), most important first. Skip \
+anything already said in the summary. Empty for small talk or simple questions.
+- status: the overall flood picture for what was asked (normal, advisory, warning or critical), or unknown \
+if the data does not say.
+- recommended_actions: at most 3, each starting with a verb ("Keep your go-bag ready"), with a one-line \
+reason in plain words. Leave empty when nothing needs doing.
+- observations, predictions, uncertainty, risk_explanation, data_limitations: the detailed evidence, shown \
+behind a "see the numbers" toggle. Precise numbers and units belong here, still in plain sentences.
+""" + PLAIN_LANGUAGE
 
 RESPONSE_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
     "required": [
         "summary",
+        "status",
+        "key_points",
         "observations",
         "predictions",
         "uncertainty",
@@ -38,7 +56,20 @@ RESPONSE_SCHEMA = {
         "stations_referenced",
     ],
     "properties": {
-        "summary": {"type": "string", "description": "2-4 sentence direct answer to the question."},
+        "summary": {
+            "type": "string",
+            "description": "The conversational reply: 2-4 short, plain sentences in the user's language that answer the question first.",
+        },
+        "status": {
+            "type": "string",
+            "enum": ["normal", "advisory", "warning", "critical", "unknown"],
+            "description": "Overall flood picture for what was asked.",
+        },
+        "key_points": {
+            "type": "array",
+            "description": "Up to 4 one-sentence plain-language takeaways, most important first.",
+            "items": {"type": "string"},
+        },
         "observations": {
             "type": "array",
             "items": {
