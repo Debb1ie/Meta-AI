@@ -160,7 +160,7 @@ def sync_live_gauges(session: Session) -> dict:
             validation={},
         )
         session.add(dataset)
-        session.flush()
+        session.commit()
 
     imported, errors = 0, {}
     for gauge in uk_ea.GAUGES:
@@ -179,7 +179,10 @@ def sync_live_gauges(session: Session) -> dict:
             since = as_utc(last) - pd.Timedelta(hours=3) if last else uk_ea.default_since()
             frame = uk_ea.fetch_observations(gauge, since)
             imported += upsert_observations(session, frame, dataset)
+            # Commit per gauge: short write locks, and gauges appear one by one on a fresh start.
+            session.commit()
         except Exception as exc:  # one bad gauge must not stop the rest
+            session.rollback()
             errors[gauge.id] = str(exc)
 
     period = session.execute(

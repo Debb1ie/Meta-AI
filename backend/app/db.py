@@ -15,6 +15,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     create_engine,
+    event,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 
@@ -91,10 +92,22 @@ class Observation(Base):
 
 
 _settings = get_settings()
+_is_sqlite = _settings.database_url.startswith("sqlite")
 engine = create_engine(
     _settings.database_url,
-    connect_args={"check_same_thread": False} if _settings.database_url.startswith("sqlite") else {},
+    connect_args={"check_same_thread": False, "timeout": 30} if _is_sqlite else {},
 )
+
+if _is_sqlite:
+    # The live sync writes in a background thread while API requests read. WAL lets reads
+    # proceed during a write, and busy_timeout makes a blocked writer wait instead of
+    # failing with "database is locked".
+    @event.listens_for(engine, "connect")
+    def _sqlite_pragmas(dbapi_conn, _record) -> None:
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA journal_mode=WAL")
+        cur.execute("PRAGMA busy_timeout=30000")
+        cur.close()
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
