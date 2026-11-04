@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const isDev = process.env.NODE_ENV !== "production";
+const MAP_DATA = [
+  "https://s3.amazonaws.com",
+  "https://server.arcgisonline.com",
+  "https://ic.imagery1.arcgis.com",
+  "https://overpass-api.de",
+  "https://maps.mail.ru",
+];
 
 // Content Security Policy. Next.js needs inline scripts for hydration (no nonce setup),
 // and dev mode needs eval for fast refresh; everything else is locked to known origins.
@@ -11,7 +18,8 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://server.arcgisonline.com https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${API_URL} https://api.open-meteo.com${isDev ? " ws: http://localhost:8000" : ""}`,
+  // Spatial mapping page: elevation tiles, satellite imagery, land cover and OpenStreetMap (Overpass).
+  `connect-src 'self' ${API_URL} https://api.open-meteo.com ${MAP_DATA.join(" ")}${isDev ? " ws: http://localhost:8000" : ""}`,
   "worker-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",
