@@ -1,4 +1,5 @@
 import logging
+import os
 import threading
 import time
 from contextlib import asynccontextmanager
@@ -120,4 +121,5 @@ app.include_router(research.router)
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "meta_configured": get_settings().meta_configured}
+    # Render sets RENDER_GIT_COMMIT, so this shows which code is live after a deploy.
+    return {"status": "ok", "meta_configured": get_settings().meta_configured, "commit": (os.environ.get("RENDER_GIT_COMMIT") or "local")[:7]}
