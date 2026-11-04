@@ -99,7 +99,7 @@ The remaining 11 npm advisories are in the ESLint toolchain, which only runs on 
 | 1. Secrets | `.env` and `.env.local` in `.gitignore`; `.env.example` holds names only | Pass |
 | 2. Keys | Model key read only by `backend/app/ai/meta_client.py`; no `NEXT_PUBLIC_` key; built bundle contains only the variable name in help text | Pass |
 | 2. Cost | `meta_max_output_tokens` 8,000, `meta_timeout_seconds` 90, agent cooldown and daily run cap | Pass |
-| 2. Cost | Per-IP and global daily limits: Ask 6/min, agent 2/min, SAM 3.1 3/min, Muse Image 3/min, CSV preview 10/min | Pass (in the branch) |
+| 2. Cost | Per-IP and global daily limits: Ask 6/min, agent 2/min, SAM 3.1 5/min, Muse Image 3/min, CSV preview 10/min | Pass (in the branch) |
 | 3. Injection | Agent and Ask system prompts treat tool results and feeds as untrusted data, not instructions (`agent.py:44`, `analyst.py:13`) | Pass |
 | 3. Injection | Agent tools are read-only and allowlisted (6 tools, no write, shell, SQL or URL fetch) | Pass |
 | 3. Output | No `dangerouslySetInnerHTML`, `innerHTML` or `eval` on model output | Pass |
