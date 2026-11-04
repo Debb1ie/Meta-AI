@@ -119,8 +119,9 @@ function PhotoCheck({ aiStatus }: { aiStatus: AiStatus | null }) {
           )}
           {result.detections === 0 && (
             <p className="ios-note">
-              No water found{result.tried_prompts?.length ? ` (looked for ${result.tried_prompts.map((p) => `“${p}”`).join(", ")})` : ""}. Try a closer photo
-              where the water fills more of the frame, or describe it differently, e.g. &ldquo;brown water&rdquo;.
+              No water found{result.tried_prompts?.length ? ` (looked for ${result.tried_prompts.map((p) => `“${p}”`).join(", ")})` : ""}. It works best on
+              street-level photos where the water fills more of the frame. High or aerial shots in heavy rain, where water looks
+              like wet road, are often missed.
             </p>
           )}
           {[...result.warnings, ...result.diagnostics.map((d) => d.message)].map((w, i) => <p key={i} className="ios-note">{w}</p>)}

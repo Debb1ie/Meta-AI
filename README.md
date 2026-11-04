@@ -194,6 +194,7 @@ Product documents are in [docs/product](docs/product).
 - **Free hosting resets data on restart.** After a deploy or restart, the gauges re-sync and forecasts retrain, so Analytics and gauge views fill in after a few minutes.
 - **Forecast skill fades with lead time.** On held-out data the gauge forecasts beat the no-change baseline at 1 to 12 hours ahead, but not at 24 hours. The Analytics tab shows the live numbers.
 - **Date format in the data checker.** Use ISO dates such as `2026-11-03 10:00`. Day-first dates such as `03/11/2026` are read month-first.
+- **Photo check works best at street level.** SAM 3.1 can miss floodwater in high-angle or aerial shots taken in heavy rain, where the water looks like wet road. The app says so instead of guessing.
 - **Language review.** SMS text in Ilocano and Hiligaynon hasn't been reviewed by native speakers yet.
 
 ## Data and licences
