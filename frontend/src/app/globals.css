@@ -501,6 +501,9 @@ html { -webkit-text-size-adjust:100%; }
 .ios-analytics-dot { fill:var(--tint); stroke:var(--card); stroke-width:2; }
 .ios-analytics .ios-table td.is-good, .ios-analytics .ios-kpis .is-good { color:var(--green); }
 .ios-analytics .ios-table td.is-weak { color:var(--orange); }
+/* Analytics has four tiles, not the five the shared row is sized for. */
+.ios-kpis.is-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+@media (max-width:1180px) { .ios-kpis.is-4 { grid-template-columns:repeat(2,minmax(0,1fr)); } .ios-kpis.is-4 > div:last-child { grid-column:auto; } }
 
 /* maps */
 .ios-map-card { padding:0; overflow:hidden; }

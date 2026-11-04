@@ -55,11 +55,22 @@ export function AnalyticsView() {
   const [data, setData] = useState<Research | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const rows = data?.evaluation.summary ?? [];
+  const waiting = !!data && rows.length === 0;
+
   useEffect(() => {
     api<Research>("/api/research").then(setData).catch((err: Error) => setError(err.message));
   }, []);
 
-  const rows = data?.evaluation.summary ?? [];
+  // After a server restart the gauges re-sync and models retrain for a few minutes; keep checking.
+  useEffect(() => {
+    if (!waiting) return;
+    const id = window.setInterval(() => {
+      api<Research>("/api/research").then(setData).catch(() => {});
+    }, 30000);
+    return () => window.clearInterval(id);
+  }, [waiting]);
+
   const allModels = rows.flatMap((r) => Object.entries(r.models_selected));
   const bestModel = allModels.sort((a, b) => b[1] - a[1])[0];
   const meanSkill = rows.length ? rows.reduce((sum, r) => sum + (r.mean_skill ?? 0), 0) / rows.length : null;
@@ -70,7 +81,13 @@ export function AnalyticsView() {
 
   return (
     <div className="ios-main-col ios-analytics">
-      <div className="ios-kpis">
+      {waiting && (
+        <div className="ios-note">
+          Results are still being prepared. After a restart, the server reloads river data and retrains its forecasts, which
+          takes a few minutes. This page checks again every 30 seconds.
+        </div>
+      )}
+      <div className="ios-kpis is-4">
         <div><small>Evaluated gauges</small><b>{rows[0]?.gauges ?? "—"}</b><em>held-out test data</em></div>
         <div><small>Mean skill</small><b className={meanSkill != null && meanSkill > 0 ? "is-good" : ""}>{percent(meanSkill)}</b><em>vs persistence baseline</em></div>
         <div><small>80% coverage</small><b>{percent(meanCoverage)}</b><em>target: 80%</em></div>
