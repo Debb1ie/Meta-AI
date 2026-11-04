@@ -400,7 +400,7 @@ export function AgentView({ agent, configured }: { agent: AgentState; configured
             </div>
 
             <div className="ios-card">
-              <strong>What's happening</strong>
+              <strong>What&apos;s happening</strong>
               <ul className="ios-claims">
                 {r.briefing.situation.map((c, i) => <li key={i}>{c.text} <Cites ids={c.evidence} onOpen={openEvidence} /></li>)}
               </ul>
