@@ -25,6 +25,10 @@ DEMO_THRESHOLD_SOURCE = (
 _forecast_cache: dict[str, tuple[tuple, dict]] = {}
 _cache_lock = threading.Lock()
 _station_locks: dict[str, threading.Lock] = {}
+# One model training at a time: on a small shared CPU, parallel training makes every
+# station slower and risks running out of memory.
+_train_gate = threading.Semaphore(1)
+WARMING = {"status": "warming", "message": "The forecast is being prepared after a restart. Check back in a few minutes."}
 
 
 # ---------------------------------------------------------------- importing
@@ -286,7 +290,8 @@ def refresh_forecast_async(station_id: str) -> None:
                 station = session.get(Station, station_id)
                 if station is not None:
                     key = _fingerprint(session, station_id)
-                    result = _compute_forecast(session, station)
+                    with _train_gate:
+                        result = _compute_forecast(session, station)
                     with _cache_lock:
                         _forecast_cache[station_id] = (key, result)
         except Exception:  # a failed refresh keeps serving the previous forecast
@@ -300,18 +305,18 @@ def refresh_forecast_async(station_id: str) -> None:
 def station_forecast(session: Session, station: Station, wait: bool = False) -> dict:
     """Pipeline output + recent history for one station, cached until its data changes.
 
-    When new readings arrive, callers get the previous forecast immediately while it
-    retrains in the background, so no page waits on model training. Only a station with
-    no forecast yet (or a caller passing wait=True, like the warm-up loop) computes inline.
+    No page waits on model training: when new readings arrive, callers get the previous
+    forecast while it retrains in the background, and a station with no forecast yet
+    returns WARMING. Only wait=True (the warm-up loop, tests) computes inline.
     A per-station lock makes concurrent callers share one computation."""
     key = _fingerprint(session, station.id)
     with _cache_lock:
         hit = _forecast_cache.get(station.id)
     if hit and hit[0] == key:
         return hit[1]
-    if hit and not wait:
+    if not wait:
         refresh_forecast_async(station.id)
-        return hit[1]
+        return hit[1] if hit else dict(WARMING)
     lock = _station_lock(station.id)
     with lock:
         key = _fingerprint(session, station.id)
@@ -319,7 +324,8 @@ def station_forecast(session: Session, station: Station, wait: bool = False) -> 
             hit = _forecast_cache.get(station.id)
         if hit and hit[0] == key:
             return hit[1]
-        result = _compute_forecast(session, station)
+        with _train_gate:
+            result = _compute_forecast(session, station)
         with _cache_lock:
             _forecast_cache[station.id] = (key, result)
         return result

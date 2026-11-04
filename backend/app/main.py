@@ -78,11 +78,13 @@ def _live_loop(stop: threading.Event) -> None:
         except Exception:
             log.exception("Live gauge sync failed")
         _refresh_outlook()
-        _warm_forecasts()
+        # Briefing first: after a restart the dashboard has a fresh one within a couple of
+        # minutes instead of waiting for every gauge model to train.
         try:
             _maybe_run_agent()
         except Exception:
             log.exception("Agent autorun crashed")
+        _warm_forecasts()
         stop.wait(minutes * 60)
 
 

@@ -14,7 +14,7 @@ from ..security import rate_limit, require_admin
 from ..forecasting.preprocessing import validate_observations
 from ..providers.base import StationMetadata
 from ..risk import Thresholds
-from ..services import clear_forecast_cache, ensure_station, seed_demo, upsert_observations
+from ..services import ensure_station, refresh_forecast_async, seed_demo, upsert_observations
 
 router = APIRouter(prefix="/api", tags=["data"])
 
@@ -154,7 +154,9 @@ async def import_csv(
     session.flush()
     dataset.rows_imported = upsert_observations(session, clean, dataset)
     session.commit()
-    clear_forecast_cache()
+    # Retrain only the imported stations, in the background; others keep their forecasts.
+    for station_id in clean["station_id"].unique():
+        refresh_forecast_async(str(station_id))
     return {"dataset": _dataset_dict(dataset), "report": report.as_dict()}
 
 

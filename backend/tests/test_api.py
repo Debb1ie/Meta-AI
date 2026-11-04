@@ -18,6 +18,10 @@ def client():
     original = open_meteo.fetch_forecast
     open_meteo.fetch_forecast = unavailable
     with TestClient(app, headers={"X-Admin-Token": "test-admin"}) as c:
+        # Production warms every forecast in the background before pages use them; do the same.
+        from app.main import _warm_forecasts
+
+        _warm_forecasts()
         yield c
     open_meteo.fetch_forecast = original
 
@@ -76,7 +80,14 @@ def test_csv_preview_then_import(client):
     ds = r.json()["dataset"]
     assert ds["rows_imported"] == 24 * 8 and ds["rows_rejected"] == 1 and ds["is_simulated"] is False
 
-    report = client.get("/api/stations/csv-a").json()
+    # The import starts training in the background; the page shows "warming" until it is done.
+    import time
+
+    for _ in range(60):
+        report = client.get("/api/stations/csv-a").json()
+        if report["forecast"]["status"] != "warming":
+            break
+        time.sleep(0.5)
     assert report["freshness"]["data_kind"] == "observed"
     assert report["forecast"]["status"] == "ok"
     assert report["forecast"]["ml_available"] is False  # 8 days < ML minimum
