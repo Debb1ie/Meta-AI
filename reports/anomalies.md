@@ -50,9 +50,9 @@ Covers: consistency across pages, edge-case inputs, runtime health and data anom
 
 | Check | Result |
 |---|---|
-| Backend tests | 64 passed |
+| Backend tests | 68 passed (re-run November 4) |
 | `GET /api/ai/status` | All three Meta models configured |
-| Latest live agent briefing | 7 claims, 24 of 24 numbers verified, no unknown evidence IDs |
+| Live agent briefings | November 3: 7 claims, 24 of 24 numbers verified. November 4: 6 claims, 7 of 7 verified. No unknown evidence IDs |
 | Links on the landing page | All return 200, except four that exist only on the unpublished branch: `/privacy`, `/research`, the demo CSV, and `/tree/main/reports` on GitHub. They will resolve after the deploy. The map tile URL is a template, not a page, so it isn't expected to return 200 on its own. |
 | Keep-awake | A GitHub Action pings the API every 10 minutes to reduce cold starts |
 

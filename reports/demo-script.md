@@ -31,7 +31,7 @@ Live site: https://hydrosentinel-plum.vercel.app (no login needed)
 **Then:** tap one citation in the briefing so the source data opens.
 
 **Say:**
-"Every claim cites the exact tool result behind it. And here's the part I care most about: our server, not the model, checks every number against its source. This one says 24 of 24 numbers verified."
+"Every claim cites the exact tool result behind it. And here's the part I care most about: our server, not the model, checks every number against its source. Here it shows how many numbers it checked, and every one is verified."
 
 ### 1:05 to 1:25: alerts in local languages
 

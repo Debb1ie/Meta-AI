@@ -23,14 +23,15 @@ About 20 tropical cyclones enter the Philippine Area of Responsibility each year
 | Feature | What you see |
 |---|---|
 | Flood-watch agent | Muse Spark investigates live data with six tools, shows each step, and writes a briefing where every claim cites its source |
-| Number verification | The server checks every number in the briefing against the tool result it cites and shows the score, for example 24 of 24 verified |
+| Number verification | The server checks every number in the briefing against the tool result it cites and shows the score on every briefing (all numbers verified on the November 3 and 4 runs) |
 | SMS alerts | Ready-to-forward text in five languages |
 | PH outlook | 17 Philippine basins on a map, with 30-day flow and alert levels |
 | Live gauges | Measured river levels every 15 minutes, with backtested forecasts and uncertainty ranges |
-| Ask | Questions in English, Filipino or Taglish, answered from live data |
+| Ask | Questions in English, Filipino or Taglish, answered in the same language from live data, with a status, key points and what to do |
 | Photo check | SAM 3.1 measures how much of a field photo is flooded |
 | Posters | Muse Image community posters matched to the day's alert level |
 | 3D layers | Terrain, rainfall forecast, river flow, forecast peak and a flood-watch index stacked over the Philippines |
+| Analytics | Held-out forecast skill against a no-change baseline, interval coverage and model selection for each forecast horizon |
 | Research | The forecasting method, parameters and live skill scores |
 | Data checker | Validates a CSV of river readings and reports gaps, duplicates and bad values |
 
@@ -170,6 +171,7 @@ The names are listed in [.env.example](.env.example). Never commit real values.
 ## Trust and safety
 
 - The server, not the model, checks every number in a briefing.
+- Muse Spark follows a shared plain-language style guide (`backend/app/ai/style.py`): answer first, everyday words, no internal jargon, and alerts that read like a neighbour's text.
 - Every briefing and SMS says it is model guidance and points to PAGASA, NDRRMC and local DRRM offices for official warnings.
 - Model keys stay on the server. Data-changing routes need an admin key. Every AI route is rate-limited and capped at 8,000 output tokens.
 - Feed and tool data are treated as untrusted in prompts.
@@ -189,6 +191,8 @@ Product documents are in [docs/product](docs/product).
 - **Philippine river flow is modelled, not measured.** Real-time Philippine gauge data isn't openly available. GloFAS gives modelled daily discharge, and measured UK gauges are used to test the forecasting engine against reality.
 - **Alert levels are statistical, not official.** They are the 95th, 99th and 99.8th percentiles of each river's last five years, not PAGASA warning levels.
 - **Free hosting sleeps.** The first request after a long idle period can take up to a minute, even with the keep-awake ping.
+- **Free hosting resets data on restart.** After a deploy or restart, the gauges re-sync and forecasts retrain, so Analytics and gauge views fill in after a few minutes.
+- **Forecast skill fades with lead time.** On held-out data the gauge forecasts beat the no-change baseline at 1 to 12 hours ahead, but not at 24 hours. The Analytics tab shows the live numbers.
 - **Date format in the data checker.** Use ISO dates such as `2026-11-03 10:00`. Day-first dates such as `03/11/2026` are read month-first.
 - **Language review.** SMS text in Ilocano and Hiligaynon hasn't been reviewed by native speakers yet.
 

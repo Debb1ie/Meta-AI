@@ -26,7 +26,7 @@ These need the owner's own accounts or approval. They are listed in priority ord
 | MEDIUM | 2 |
 | LOW | 6 |
 
-No secrets were found in the working tree or in any commit on any branch. Model keys are used only on the server. Every model endpoint has input limits, an output token cap, a timeout and per-IP rate limits. The backend test suite passes (64 tests).
+No secrets were found in the working tree or in any commit on any branch. Model keys are used only on the server. Every model endpoint has input limits, an output token cap, a timeout and per-IP rate limits. The backend test suite passes (68 tests, re-run November 4).
 
 ## HIGH
 
@@ -103,7 +103,7 @@ The remaining 11 npm advisories are in the ESLint toolchain, which only runs on 
 | 3. Injection | Agent and Ask system prompts treat tool results and feeds as untrusted data, not instructions (`agent.py:44`, `analyst.py:13`) | Pass |
 | 3. Injection | Agent tools are read-only and allowlisted (6 tools, no write, shell, SQL or URL fetch) | Pass |
 | 3. Output | No `dangerouslySetInnerHTML`, `innerHTML` or `eval` on model output | Pass |
-| 3. Output | Every number in a briefing is checked against the cited tool result on the server; the latest live briefing verified 24 of 24 numbers | Pass |
+| 3. Output | Every number in a briefing is checked against the cited tool result on the server; live briefings verified 24 of 24 numbers on the November 3 run and 7 of 7 on the November 4 run | Pass |
 | 4. Input | Pydantic schemas on every body: question 3 to 2,000 characters, history at most 12 turns, CSV at most 25 MB, images limited to JPEG, PNG and WebP | Pass |
 | 4. Auth | Data-changing routes (`/api/data/import`, `/api/demo/reset`, `/api/live/sync`, thresholds `PUT`) require `X-Admin-Token`, compared in constant time, and fail closed when no key is configured | Pass (in the branch) |
 | 4. Transport | CORS limited to the app's origins plus a regex for its Vercel previews; HTTPS only; CSP with `frame-ancestors 'none'`, `nosniff` and a referrer policy | Pass (in the branch) |

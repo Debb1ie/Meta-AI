@@ -33,9 +33,19 @@ Nothing. The first commit is dated November 1, 2026. All code, data pipelines, d
 - **Research page and endpoint.** A three.js 3D forecast layer, a heat map, the full methodology and live evaluation with the real model parameters.
 - **Hackathon review skills and reports.** Security, readiness, fact-check and anomaly reports in `reports/`, and product documents in `docs/product/`.
 
+### November 4: plain language, analytics and fixes
+
+- **Plain-language Muse Spark.** A shared style guide for the agent and Ask: answer first, everyday words, numbers given meaning, no tool names or error codes. Ask now replies in the user's language with a status, key points and what to do. The number check still passes (7 of 7 on the first run with the new prompts).
+- **Analytics tab.** Held-out forecast skill, interval coverage and model selection per horizon, with a waiting state while the server re-syncs after a restart.
+- **Fixes.** Flood outlook map and forecast peak, keyless map tiles, and the live commit shown in `/api/health`.
+
+## Tools used
+
+Code was written with help from AI coding assistants (Claude Code and GitHub Copilot); commits they co-authored say so in the commit message. The project's Claude Code review skills are shared in `.claude/skills`.
+
 ## Commit log
 
-Every commit on the submission branch, oldest first, with dates in Philippine Time.
+Every commit on the submission branch up to this update, oldest first.
 
 | Date | Commit |
 |---|---|
@@ -62,6 +72,20 @@ Every commit on the submission branch, oldest first, with dates in Philippine Ti
 | 2026-11-03 | Add impact, Meta AI, trust and try-it sections to the landing page |
 | 2026-11-03 | Add a research endpoint with live evaluation and real parameters |
 | 2026-11-03 | Add a Research page with a 3D forecast layer and full methodology |
+| 2026-11-03 | Fix the landing header and footer on phones and tablets |
+| 2026-11-03 | Add README, hackathon notes, PRD, architecture, ADRs, RFCs and test plan |
+| 2026-11-03 | Add security, readiness, fact-check and anomaly reports with demo script and submission answers |
+| 2026-11-03 | Keep local editor tooling out of the repository |
+| 2026-11-03 | Bring back the 3D hero scene with live data and give the river status card its own section |
+| 2026-11-03 | Add a 3D flood layers tab: terrain, rainfall, river flow, forecast peak and a flood-watch index |
+| 2026-11-03 | Document the 3D flood layers and refresh the README screenshots |
+| 2026-11-03 | Share the project's Claude Code skills in the repository |
+| 2026-11-04 | Fix flood outlook map and forecast peak |
+| 2026-11-04 | Use keyless realistic map tiles |
+| 2026-11-04 | Make Muse Spark replies plain-language and add Analytics tab |
+| 2026-11-04 | Escape apostrophe in briefing label to fix the Vercel build |
+| 2026-11-04 | Show live commit in /api/health; align analyst rules with plain-language guide |
+| 2026-11-04 | Analytics: four-column tile row and a waiting state that retries |
 
 To check this yourself: `git log --since=2026-10-27 --reverse --format="%ad %an %s" --date=short`
 

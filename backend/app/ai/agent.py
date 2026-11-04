@@ -63,6 +63,7 @@ and point to PAGASA and the local disaster office.
 
 NUMBERS (the server checks every number you write against the evidence you cite)
 - Copy numbers exactly as they appear in the evidence; rounding to a whole number is fine.
+- Always write the unit right after a number (m³/s, mm, m, km, %), e.g. "795 m³/s", never a bare "795".
 - Don't calculate new numbers such as differences, ratios or "twice". Describe comparisons in words \
 ("well below", "close to") or use peak_pct_of_watch when you need a percentage.
 - Write small counts as words ("three rivers") unless the number is in the evidence.
