@@ -47,7 +47,26 @@ export type PHRiver = {
   series: OutlookPoint[];
 };
 
-export type Outlook = { source: string; source_url: string; fetched_at: string; stale: boolean; method: string; rivers: PHRiver[] };
+export type Outlook = { source: string; source_url: string; fetched_at: string; stale: boolean; stale_reason?: string; method: string; rivers: PHRiver[] };
+
+export const OUTLOOK_SNAPSHOT = "/data/ph-outlook-snapshot.json";
+
+/**
+ * The Philippine river outlook from the backend. If the backend cannot serve one (for example
+ * when the river data service rate-limits it), fall back to the snapshot shipped with the site,
+ * marked as not live, so the outlook never disappears.
+ */
+export async function loadOutlook(): Promise<Outlook> {
+  try {
+    return await api<Outlook>("/api/outlook");
+  } catch {
+    const res = await fetch(OUTLOOK_SNAPSHOT).catch(() => null);
+    if (!res?.ok) throw new Error("The Philippine river outlook is unavailable right now. Please try again in a few minutes.");
+    const snap = (await res.json()) as Outlook;
+    const when = new Date(snap.fetched_at).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    return { ...snap, stale: true, stale_reason: `The live river data is busy, so this is the saved outlook from ${when} Philippine time.` };
+  }
+}
 
 export type SourceStatus = Record<string, { name: string; last_sync: string; ok: boolean; rows_imported?: number; errors: Record<string, string> }>;
 

@@ -13,7 +13,7 @@ import { ToolsView } from "./tools";
 import { AnalyticsView } from "./analytics";
 import {
   API_URL, AiStatus, Hazards, Icon, LEVEL_INFO, Outlook, Overview, SourceStatus, Sparkline, Station, Thresholds,
-  api, formatNumber, levelOf, postJson, timeAgo,
+  api, formatNumber, levelOf, loadOutlook, postJson, timeAgo,
 } from "./shared";
 
 const RiverMap = dynamic(() => import("./map"), { ssr: false, loading: () => <div className="ios-map ios-skeleton" style={{ height: 280 }} /> });
@@ -137,7 +137,7 @@ export default function Featured() {
       })
       .catch(() => setOffline(true))
       .finally(() => setLoading(false));
-    api<Outlook>("/api/outlook")
+    loadOutlook()
       .then((data) => { setOutlook(data); setOutlookError(null); })
       .catch((err: Error) => setOutlookError(err.message));
     api<SourceStatus>("/api/sources").then(setSources).catch(() => setSources({}));
@@ -272,7 +272,7 @@ export default function Featured() {
     : gaugeSource
       ? `Gauges synced ${timeAgo(gaugeSource.last_sync)}`
       : updatedAt ? "Gauges: first sync running" : "Connecting…";
-  const outlookLabel = `PH outlook ${outlookError ? "unavailable" : outlookSource ? `updated ${timeAgo(outlookSource.last_sync)}` : outlook ? "ready" : "loading…"}`;
+  const outlookLabel = `PH outlook ${outlookError ? "unavailable" : outlook?.stale ? "showing saved copy" : outlookSource ? `updated ${timeAgo(outlookSource.last_sync)}` : outlook ? "ready" : "loading…"}`;
   const aiLabel = `Muse Spark ${aiStatus?.configured ? "connected" : "not connected"}`;
 
   const headings: Record<Tab, React.ReactNode> = {

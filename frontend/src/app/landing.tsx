@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { API_URL, Icon } from "./featured/shared";
+import { API_URL, Icon, OUTLOOK_SNAPSHOT } from "./featured/shared";
 import { HeroScene } from "./hero-scene";
 import { RiverStatus } from "./river-status";
 
@@ -61,7 +61,7 @@ export function useLiveData(): LiveData {
     let alive = true;
     (async () => {
       const [outlook, hazards, sources, latest] = await Promise.all([
-        getJson<{ rivers: LiveRiver[]; fetched_at: string }>("/api/outlook"),
+        getJson<{ rivers: LiveRiver[]; fetched_at: string }>("/api/outlook").then((d) => d ?? fetch(OUTLOOK_SNAPSHOT).then((r) => (r.ok ? r.json() : null)).catch(() => null)),
         getJson<{ near_ph: LiveHazard[]; events: unknown[] }>("/api/hazards"),
         getJson<{ gauges?: { ok: boolean } }>("/api/sources"),
         getJson<{ briefing: LiveBrief | null }>("/api/ai/agent/latest"),

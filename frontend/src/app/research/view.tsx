@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { api } from "../featured/shared";
+import { api, loadOutlook } from "../featured/shared";
 import type { Basin } from "./flow3d";
 
 const Flow3D = dynamic(() => import("./flow3d").then((m) => m.Flow3D), {
@@ -55,7 +55,7 @@ export function ResearchView() {
   const [hover, setHover] = useState<string | null>(null);
 
   useEffect(() => {
-    api<{ rivers: Basin[] }>("/api/outlook").then((d) => setBasins(d.rivers)).catch((e: Error) => setError(e.message));
+    loadOutlook().then((d) => setBasins(d.rivers as unknown as Basin[])).catch((e: Error) => setError(e.message));
     api<Research>("/api/research").then(setResearch).catch(() => {});
   }, []);
 

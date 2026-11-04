@@ -235,7 +235,7 @@ export function OutlookView(props: {
             It&apos;s a model, not a gauge, so use it to see what&apos;s coming, and confirm with PAGASA and your LGU.
           </p>
           <small className="ios-muted">
-            Updated {timeAgo(outlook.fetched_at)}{outlook.stale ? " · showing last good data" : ""} ·{" "}
+            Updated {timeAgo(outlook.fetched_at)}{outlook.stale ? ` · ${outlook.stale_reason ?? "showing last good data"}` : ""} ·{" "}
             <a href={outlook.source_url} target="_blank" rel="noreferrer">Copernicus GloFAS via Open-Meteo</a>
           </small>
         </div>

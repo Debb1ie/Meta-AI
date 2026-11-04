@@ -4,7 +4,8 @@
   median of the last five years of GloFAS daily discharge). The server uses this
   instead of downloading five years of history on every restart.
 - ph_outlook_snapshot.json: one complete outlook, served (marked stale) only if
-  Open-Meteo is unreachable and the server has no newer copy.
+  Open-Meteo is unreachable and the server has no newer copy. The same file is
+  copied to frontend/public/data/ for the website's own fallback.
 
 Run from backend/:  uv run python scripts/build_ph_outlook_data.py
 """
@@ -17,6 +18,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.providers import glofas  # noqa: E402
+
+FRONTEND_COPY = Path(__file__).resolve().parents[2] / "frontend/public/data/ph-outlook-snapshot.json"
 
 
 def main() -> None:
@@ -36,6 +39,8 @@ def main() -> None:
     if snapshot.get("stale"):
         raise SystemExit("live outlook failed; snapshot not written")
     glofas.SNAPSHOT_FILE.write_text(json.dumps(snapshot, separators=(",", ":")))
+    # The website keeps its own copy, so the outlook still shows if the backend is down.
+    FRONTEND_COPY.write_text(json.dumps(snapshot, separators=(",", ":")))
     print(f"wrote {glofas.SNAPSHOT_FILE.name}: {len(snapshot['rivers'])} rivers, fetched {snapshot['fetched_at']}")
 
 

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, LEVEL_INFO, type Outlook, type PHRiver } from "../featured/shared";
+import { LEVEL_INFO, loadOutlook, type Outlook, type PHRiver } from "../featured/shared";
 import { FACTOR, FACTORS, type FactorId, type Grid, type Result, SUSCEPTIBILITY, analyse, cellAt, cellLat, cellLon, classOf, makeGrid, scenario, susceptibilityShares } from "./analysis";
 import { AREAS, type Area, GRID_N, WINDOW_HALF_DEG } from "./areas";
 import type { Basemap } from "./map2d";
@@ -70,7 +70,7 @@ export function SpatialView() {
     else if (q.get("lat") && Number.isFinite(lat) && Number.isFinite(lon) && lat > PH.south && lat < PH.north && lon > PH.west && lon < PH.east) {
       setTarget({ id: null, name: "Chosen spot", place: `${lat.toFixed(3)}° N, ${lon.toFixed(3)}° E`, lat, lon, basin: null });
     }
-    api<Outlook>("/api/outlook").then(setOutlook).catch(() => {});
+    loadOutlook().then(setOutlook).catch(() => {});
   }, []);
 
   useEffect(() => {
