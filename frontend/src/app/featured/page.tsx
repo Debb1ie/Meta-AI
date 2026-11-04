@@ -491,6 +491,7 @@ const FEATURES: { tab: Tab; anchor?: string; icon: React.ReactNode; title: strin
   { tab: "outlook", icon: Icon.outlook, title: "Philippine outlook", text: "17 basins on a map with 30-day flow forecasts and alert levels.", tag: "GloFAS" },
   { tab: "layers", icon: Icon.layers, title: "3D flood layers", text: "Terrain, rainfall and river flow stacked over the Philippines.", tag: "3D" },
   { tab: "stations", icon: Icon.stations, title: "Live gauges", text: "Measured levels, forecasts, backtests and model diagnostics.", tag: "Every 15 min" },
+  { tab: "analytics", icon: Icon.analytics, title: "Performance analytics", text: "How well the forecasts beat a no-change baseline, per horizon.", tag: "Backtest" },
   { tab: "ask", icon: Icon.ask, title: "Ask Muse Spark", text: "Plain-language answers grounded in the live data.", tag: "Chat" },
   { tab: "tools", anchor: "tool-photo", icon: Icon.image, title: "Flood photo check", text: "Upload a field photo; SAM 3.1 outlines the floodwater.", tag: "SAM 3.1" },
   { tab: "tools", anchor: "tool-poster", icon: Icon.bag, title: "Community posters", text: "Generate preparedness illustrations to share.", tag: "Muse Image" },
@@ -506,7 +507,7 @@ function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
     <section className="ios-hub" aria-label="Everything in HydroSentinel">
       <div className="ios-panel-head">
         <strong>Everything in HydroSentinel</strong>
-        <small className="ios-muted">Tap any card to open it · keys 1–7 switch sections</small>
+        <small className="ios-muted">Tap any card to open it · keys 1–8 switch sections</small>
       </div>
       <div className="ios-hub-grid">
         {FEATURES.map((f) => (

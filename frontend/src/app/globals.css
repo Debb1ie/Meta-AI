@@ -960,6 +960,8 @@ html { -webkit-text-size-adjust:100%; }
 .ios .ios-hub-card:hover { transform:translateY(-3px); border-color:var(--tint); box-shadow:0 10px 26px rgba(16,37,42,.1); }
 .ios-hub-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:11px; background:var(--primary); color:var(--accent); }
 .ios[data-theme="dark"] .ios-hub-icon { color:var(--on-primary); }
+/* Auto mode on a dark system: --primary and --accent are both lime, so the icon needs the same fix. */
+@media (prefers-color-scheme:dark) { .ios:not([data-theme="light"]) .ios-hub-icon { color:var(--on-primary); } }
 .ios-hub-icon svg { width:19px; height:19px; }
 .ios-hub-text b { display:block; margin-top:1px; font-size:14px; }
 .ios-hub-text small { display:block; margin-top:3px; color:var(--label2); font-size:12px; line-height:1.4; }
