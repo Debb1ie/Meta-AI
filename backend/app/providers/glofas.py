@@ -30,6 +30,7 @@ OUTLOOK_DAYS = 7
 HISTORY_DAYS = 30
 FORECAST_DAYS = 30
 CLIMATOLOGY_YEARS = 5
+CLIMATOLOGY_BATCH_SIZE = 4
 TREND_LOOKBACK_DAYS = 3
 TREND_THRESHOLD = 0.15  # relative change that counts as rising or falling
 
@@ -71,11 +72,11 @@ class OutlookUnavailable(RuntimeError):
     pass
 
 
-def _fetch(params: dict) -> list[dict]:
+def _fetch(params: dict, rivers: list[PHRiver] = RIVERS) -> list[dict]:
     settings = get_settings()
     params = {
-        "latitude": ",".join(str(r.latitude) for r in RIVERS),
-        "longitude": ",".join(str(r.longitude) for r in RIVERS),
+        "latitude": ",".join(str(r.latitude) for r in rivers),
+        "longitude": ",".join(str(r.longitude) for r in rivers),
         **params,
     }
     try:
@@ -93,7 +94,14 @@ def _climatology() -> list[dict]:
     if cached and time.time() - cached[0] < 24 * 3600:
         return cached[1]["rivers"]
     end = date.today() - timedelta(days=1)
-    rows = _fetch({"daily": "river_discharge", "start_date": (end - timedelta(days=CLIMATOLOGY_YEARS * 365)).isoformat(), "end_date": end.isoformat()})
+    params = {
+        "daily": "river_discharge",
+        "start_date": (end - timedelta(days=CLIMATOLOGY_YEARS * 365)).isoformat(),
+        "end_date": end.isoformat(),
+    }
+    rows = []
+    for start in range(0, len(RIVERS), CLIMATOLOGY_BATCH_SIZE):
+        rows.extend(_fetch(params, RIVERS[start : start + CLIMATOLOGY_BATCH_SIZE]))
     result = []
     for item in rows:
         values = np.array([v for v in item["daily"]["river_discharge"] if v is not None], dtype=float)
@@ -131,7 +139,11 @@ def _assess(river: PHRiver, item: dict, thresholds: dict, today: str) -> dict:
     current = next((p for p in reversed(series) if p["date"] <= today), series[0] if series else None)
     if current is None:
         raise OutlookUnavailable(f"No GloFAS values for {river.name}.")
-    window = [p for p in series if today < p["date"] <= (date.fromisoformat(today) + timedelta(days=OUTLOOK_DAYS)).isoformat()]
+    window = [
+        p
+        for p in series
+        if today <= p["date"] <= (date.fromisoformat(today) + timedelta(days=OUTLOOK_DAYS)).isoformat()
+    ]
     peak = max(window or [current], key=lambda p: p["discharge_m3s"])
     upper = max((p["p75_m3s"] or p["discharge_m3s"] for p in window), default=peak["discharge_m3s"])
     three_days_ago = next((p for p in series if p["date"] == (date.fromisoformat(today) - timedelta(days=TREND_LOOKBACK_DAYS)).isoformat()), None)

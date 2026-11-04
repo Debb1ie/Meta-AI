@@ -24,8 +24,8 @@ function FitToPoints({ points }: { points: MapPoint[] }) {
 }
 
 export default function RiverMap(props: { points: MapPoint[]; hazards?: MapHazard[]; selectedId?: string | null; onSelect?: (id: string) => void; dark: boolean; height?: number }) {
-  // Esri Gray Canvas basemaps: keyless, with attribution.
-  const tiles = `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${props.dark ? "Dark" : "Light"}_Gray_Base/MapServer/tile/{z}/{y}/{x}`;
+  // Carto Voyager provides roads, coastlines and place labels without an API key.
+  const tiles = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png";
   const center = props.points[0] ? ([props.points[0].lat, props.points[0].lon] as [number, number]) : ([12.5, 122] as [number, number]);
   return (
     <div className="ios-map" style={{ height: props.height ?? 320 }}>
@@ -33,7 +33,7 @@ export default function RiverMap(props: { points: MapPoint[]; hazards?: MapHazar
         <TileLayer
           key={tiles}
           url={tiles}
-          attribution='Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={16}
         />
         <FitToPoints points={props.points} />
