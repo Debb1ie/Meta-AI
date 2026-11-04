@@ -25,7 +25,7 @@ def _warm_forecasts() -> None:
     with SessionLocal() as session:
         for station in session.scalars(select(Station)):
             try:
-                station_forecast(session, station)
+                station_forecast(session, station, wait=True)
             except Exception:  # never let warm-up kill the server
                 log.exception("Forecast warm-up failed for %s", station.id)
 

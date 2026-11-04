@@ -15,7 +15,7 @@ type Summary = {
 };
 
 type Research = {
-  evaluation: { summary: Summary[] };
+  evaluation: { summary: Summary[]; warming?: number };
 };
 
 function percent(value: number | null, digits = 0) {
@@ -56,7 +56,8 @@ export function AnalyticsView() {
   const [error, setError] = useState<string | null>(null);
 
   const rows = data?.evaluation.summary ?? [];
-  const waiting = !!data && rows.length === 0;
+  const warming = data?.evaluation.warming ?? 0;
+  const waiting = !!data && (rows.length === 0 || warming > 0);
 
   useEffect(() => {
     api<Research>("/api/research").then(setData).catch((err: Error) => setError(err.message));
@@ -83,8 +84,10 @@ export function AnalyticsView() {
     <div className="ios-main-col ios-analytics">
       {waiting && (
         <div className="ios-note">
-          Results are still being prepared. After a restart, the server reloads river data and retrains its forecasts, which
-          takes a few minutes. This page checks again every 30 seconds.
+          {rows.length === 0
+            ? "Results are still being prepared. After a restart, the server reloads river data and retrains its forecasts, which takes a few minutes."
+            : `${warming} more gauge${warming === 1 ? " is" : "s are"} still being evaluated; the numbers below will update.`}{" "}
+          This page checks again every 30 seconds.
         </div>
       )}
       <div className="ios-kpis is-4">

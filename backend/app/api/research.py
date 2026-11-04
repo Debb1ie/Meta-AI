@@ -13,7 +13,10 @@ from ..forecasting import models, pipeline, preprocessing
 from ..providers import glofas, hazards
 from .. import risk
 from ..config import get_settings
-from .stations import all_reports
+from sqlalchemy import select
+
+from ..db import Station
+from ..services import cached_forecast, refresh_forecast_async, station_summary
 
 router = APIRouter(prefix="/api", tags=["research"])
 
@@ -69,7 +72,16 @@ def _parameters() -> dict:
 
 @router.get("/research")
 def research(session: Session = Depends(get_session)) -> dict:
-    reports = all_reports(session)
+    # Use finished forecasts only, so this page answers instantly even right after a
+    # restart; stations still training are started in the background and counted.
+    reports, warming = [], 0
+    for station in session.scalars(select(Station).order_by(Station.id)):
+        fc = cached_forecast(station.id)
+        if fc is None:
+            warming += 1
+            refresh_forecast_async(station.id)
+            continue
+        reports.append({"station": station_summary(station), "forecast": fc})
     gauges, by_horizon = [], {}
     for rep in reports:
         fc = rep["forecast"]
@@ -118,4 +130,4 @@ def research(session: Session = Depends(get_session)) -> dict:
         }
         for h, rows in sorted(by_horizon.items())
     ]
-    return {"parameters": _parameters(), "evaluation": {"summary": summary, "gauges": gauges}}
+    return {"parameters": _parameters(), "evaluation": {"summary": summary, "gauges": gauges, "warming": warming}}

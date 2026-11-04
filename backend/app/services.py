@@ -193,8 +193,8 @@ def sync_live_gauges(session: Session) -> dict:
     dataset.period_start, dataset.period_end = period[0], period[1]
     dataset.rows_imported = dataset.rows_received = period[2]
     session.commit()
-    if imported:
-        clear_forecast_cache()
+    # No cache clear here: each station's fingerprint changes with new readings, and
+    # station_forecast keeps serving the previous result while it retrains.
     _set_status(
         "gauges",
         name="UK Environment Agency (measured)",
@@ -260,11 +260,59 @@ def clear_forecast_cache() -> None:
         _forecast_cache.clear()
 
 
-def station_forecast(session: Session, station: Station) -> dict:
-    """Pipeline output + recent history for one station, cached until its data changes.
-    A per-station lock makes concurrent callers wait for one computation."""
+def _station_lock(station_id: str) -> threading.Lock:
     with _cache_lock:
-        lock = _station_locks.setdefault(station.id, threading.Lock())
+        return _station_locks.setdefault(station_id, threading.Lock())
+
+
+def cached_forecast(station_id: str) -> dict | None:
+    """The last computed forecast for a station, even if newer readings have arrived."""
+    with _cache_lock:
+        hit = _forecast_cache.get(station_id)
+    return hit[1] if hit else None
+
+
+def refresh_forecast_async(station_id: str) -> None:
+    """Retrain one station in a background thread unless it is already being computed."""
+    lock = _station_lock(station_id)
+    if not lock.acquire(blocking=False):
+        return
+
+    def work() -> None:
+        from .db import SessionLocal  # local import keeps module import order simple
+
+        try:
+            with SessionLocal() as session:
+                station = session.get(Station, station_id)
+                if station is not None:
+                    key = _fingerprint(session, station_id)
+                    result = _compute_forecast(session, station)
+                    with _cache_lock:
+                        _forecast_cache[station_id] = (key, result)
+        except Exception:  # a failed refresh keeps serving the previous forecast
+            pass
+        finally:
+            lock.release()
+
+    threading.Thread(target=work, daemon=True).start()
+
+
+def station_forecast(session: Session, station: Station, wait: bool = False) -> dict:
+    """Pipeline output + recent history for one station, cached until its data changes.
+
+    When new readings arrive, callers get the previous forecast immediately while it
+    retrains in the background, so no page waits on model training. Only a station with
+    no forecast yet (or a caller passing wait=True, like the warm-up loop) computes inline.
+    A per-station lock makes concurrent callers share one computation."""
+    key = _fingerprint(session, station.id)
+    with _cache_lock:
+        hit = _forecast_cache.get(station.id)
+    if hit and hit[0] == key:
+        return hit[1]
+    if hit and not wait:
+        refresh_forecast_async(station.id)
+        return hit[1]
+    lock = _station_lock(station.id)
     with lock:
         key = _fingerprint(session, station.id)
         with _cache_lock:
