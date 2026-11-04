@@ -325,6 +325,7 @@ export default function Featured() {
           <button className="ios-btn ios-rail-theme" onClick={cycleTheme} aria-label={`Appearance: ${theme}`} title="Appearance (T)">
             {theme === "light" ? Icon.sun : theme === "dark" ? Icon.moon : Icon.auto}
           </button>
+          <Link href="/spatial" className="ios-shortcut-hint" title="3D terrain, flood map and susceptibility factors for Philippine towns">{Icon.pin}<span>Spatial mapping</span></Link>
           <Link href="/research" className="ios-shortcut-hint" title="Forecasting method, parameters and live skill scores">{Icon.map}<span>Research &amp; methodology</span></Link>
           <Link href="/" className="ios-home-btn" title="Back to home">{Icon.back}<span>Back to home</span></Link>
         </div>
@@ -499,7 +500,10 @@ const FEATURES: { tab: Tab; anchor?: string; icon: React.ReactNode; title: strin
   { tab: "tools", anchor: "tool-system", icon: Icon.server, title: "System & security", text: "Pipeline health, sync, API latency and admin access.", tag: "Ops" },
 ];
 
-const RESEARCH_CARD = { href: "/research", icon: Icon.map, title: "Research & method", text: "How the forecasts are built and scored, with live skill scores.", tag: "Research" };
+const LINK_CARDS = [
+  { href: "/spatial", icon: Icon.pin, title: "Spatial flood mapping", text: "3D terrain with rising water, a flood map and 11 susceptibility factors per town.", tag: "New page" },
+  { href: "/research", icon: Icon.map, title: "Research & method", text: "How the forecasts are built and scored, with live skill scores.", tag: "Research" },
+];
 
 /** One card per feature, so nothing has to be discovered by scrolling. */
 function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
@@ -520,14 +524,16 @@ function FeatureHub({ onGo }: { onGo: (tab: Tab, anchor?: string) => void }) {
             <span className="ios-hub-tag">{f.tag}</span>
           </button>
         ))}
-        <Link className="ios-hub-card" href={RESEARCH_CARD.href}>
-          <span className="ios-hub-icon">{RESEARCH_CARD.icon}</span>
-          <span className="ios-hub-text">
-            <b>{RESEARCH_CARD.title}</b>
-            <small>{RESEARCH_CARD.text}</small>
-          </span>
-          <span className="ios-hub-tag">{RESEARCH_CARD.tag}</span>
-        </Link>
+        {LINK_CARDS.map((c) => (
+          <Link key={c.href} className="ios-hub-card" href={c.href}>
+            <span className="ios-hub-icon">{c.icon}</span>
+            <span className="ios-hub-text">
+              <b>{c.title}</b>
+              <small>{c.text}</small>
+            </span>
+            <span className="ios-hub-tag">{c.tag}</span>
+          </Link>
+        ))}
       </div>
     </section>
   );

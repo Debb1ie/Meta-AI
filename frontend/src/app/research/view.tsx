@@ -93,7 +93,7 @@ export function ResearchView() {
     <main className="lp rx">
       <nav className="rx-top shell">
         <Link href="/" className="rx-brand"><span className="brand-mark">H</span> HydroSentinel</Link>
-        <span className="rx-top-links"><Link href="/featured">Dashboard</Link><a href="#method">Method</a><a href="#results">Results</a><a href="#limits">Limitations</a></span>
+        <span className="rx-top-links"><Link href="/featured">Dashboard</Link><Link href="/spatial">Spatial mapping</Link><a href="#method">Method</a><a href="#results">Results</a><a href="#limits">Limitations</a></span>
       </nav>
 
       <header className="shell rx-head">
