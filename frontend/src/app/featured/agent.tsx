@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_URL, Icon, LEVEL_INFO, api, formatUtc, postJson, timeAgo } from "./shared";
+import { API_URL, Icon, LEVEL_INFO, StylePicker, api, formatUtc, postJson, styleLabel, timeAgo } from "./shared";
 
 // ---------------------------------------------------------------- types (mirror backend/app/ai/agent.py)
 
@@ -240,16 +240,20 @@ function Poster({ briefing }: { briefing: Briefing }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [src, setSrc] = useState<string | null>(null);
+  const [style, setStyle] = useState("surprise");
+  const [madeStyle, setMadeStyle] = useState<string | undefined>();
   const make = async () => {
     setBusy(true);
     setError(null);
     try {
       const top = briefing.watchlist[0];
-      const r = await postJson<{ b64?: string | null; url?: string | null }>("/api/ai/alert-poster", {
+      const r = await postJson<{ b64?: string | null; url?: string | null; style?: string }>("/api/ai/alert-poster", {
         headline: briefing.headline,
         place: top?.kind === "ph_basin" ? top.name : "",
         level: briefing.overall_level,
+        style,
       });
+      setMadeStyle(r.style);
       const ext = r.b64?.startsWith("UklGR") ? "webp" : r.b64?.startsWith("/9j/") ? "jpeg" : "png";
       setSrc(r.b64 ? `data:image/${ext};base64,${r.b64}` : r.url ?? null);
     } catch (err) {
@@ -264,12 +268,13 @@ function Poster({ briefing }: { briefing: Briefing }) {
         <strong className="ios-with-icon">{Icon.image}Community poster</strong>
         <span className="ios-tag">Muse Image</span>
       </div>
-      <p className="ios-muted ios-small">An illustration matched to today&apos;s alert level, to pair with the SMS text above.</p>
+      <p className="ios-muted ios-small">An illustration matched to today&apos;s alert level, to pair with the SMS text above. Each one shows a different scene.</p>
+      <StylePicker value={style} onChange={setStyle} disabled={busy} />
       {src && (
         <figure className="ios-figure">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`Community poster for: ${briefing.headline}`} />
-          <figcaption>AI-generated illustration (Muse Image)<a href={src} download="hydrosentinel-poster">Download</a></figcaption>
+          <figcaption>AI-generated illustration (Muse Image){madeStyle ? ` · ${styleLabel(madeStyle)}` : ""}<a href={src} download="hydrosentinel-poster">Download</a></figcaption>
         </figure>
       )}
       {error && <p className="ios-error">{error}</p>}

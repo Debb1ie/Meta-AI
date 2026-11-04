@@ -33,7 +33,7 @@ Team: Precious Grace Deborah Manucom (GitHub: Debb1ie)
 |---|---|---|---|
 | Impact | 30% | 8/10 | A clear user (barangay and municipal DRRM offices, LGU planners, families) and a real, recurring problem: about 20 tropical cyclones enter the Philippine Area of Responsibility each year. It covers 17 basins across the country, sends SMS-ready text in five languages and always points to PAGASA. It loses points because it has not been tested with a real DRRM office yet. |
 | Use of Meta AI tooling | 25% | 8/10 | Three Meta models in four jobs, including native tool calling, structured output and SAM 3.1 segmentation, far beyond a single call. The verification layer checks the model's numbers. It does not yet use voice transcription or open-weight models. |
-| Technical depth and execution | 20% | 9/10 | 68 backend tests, server-side number verification (24 of 24 numbers on the November 3 run and 7 of 7 on the November 4 run), backtested forecasting with three competing models and conformal intervals, admin key, rate limits, CSP, a privacy page and full security, fact-check and anomaly reports. |
+| Technical depth and execution | 20% | 9/10 | 71 backend tests, server-side number verification (24 of 24 numbers on the November 3 run and 7 of 7 on the November 4 run), backtested forecasting with three competing models and conformal intervals, admin key, rate limits, CSP, a privacy page and full security, fact-check and anomaly reports. |
 | Demo | 25% | 7/10 | Live, no login, and visual: the agent trace, a 3D forecast layer and posters. Risks: the free Render instance can be slow on first load, and the live site needs the latest deploy. Both are fixable before recording. |
 | Weighted total | | **7.9/10** | |
 

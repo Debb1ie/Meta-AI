@@ -26,7 +26,7 @@ These need the owner's own accounts or approval. They are listed in priority ord
 | MEDIUM | 2 |
 | LOW | 6 |
 
-No secrets were found in the working tree or in any commit on any branch. Model keys are used only on the server. Every model endpoint has input limits, an output token cap, a timeout and per-IP rate limits. The backend test suite passes (68 tests, re-run November 4).
+No secrets were found in the working tree or in any commit on any branch. Model keys are used only on the server. Every model endpoint has input limits, an output token cap, a timeout and per-IP rate limits. The backend test suite passes (71 tests, re-run November 4).
 
 ## HIGH
 

@@ -77,7 +77,7 @@ Points this project supports: reliable structured output, quality in Philippine 
 | Claim | Evidence |
 |---|---|
 | Server checks every number | 24 of 24 numbers verified on the November 3 run; 7 of 7 on the November 4 run |
-| Backend tests | 68 passing |
+| Backend tests | 71 passing |
 | Live data | 17 PH basins, 10 UK gauges, GDACS typhoon and flood alerts |
 | Forecast skill | Beats the no-change baseline at 1 to 12 hours ahead (12 to 31% on average); not at 24 hours (-3.7%). Shown live on the Analytics tab |
 | Meta models live | muse-spark-1.3, sam-3.1, muse-image-1.0 via api.meta.ai |

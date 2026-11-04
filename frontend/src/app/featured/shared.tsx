@@ -295,3 +295,36 @@ export function formatUtc(iso: string | null | undefined) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
+
+// Mirrors POSTER_STYLES in backend/app/api/ai.py.
+export const POSTER_STYLES: { id: string; label: string }[] = [
+  { id: "surprise", label: "Surprise me" },
+  { id: "flat", label: "Flat" },
+  { id: "watercolor", label: "Watercolor" },
+  { id: "komiks", label: "Komiks" },
+  { id: "papercut", label: "Paper-cut" },
+  { id: "isometric", label: "Isometric 3D" },
+  { id: "linocut", label: "Linocut" },
+];
+
+export const styleLabel = (id?: string) => POSTER_STYLES.find((s) => s.id === id)?.label ?? id ?? "";
+
+export function StylePicker({ value, onChange, disabled }: { value: string; onChange: (id: string) => void; disabled?: boolean }) {
+  return (
+    <div className="ios-chips" role="radiogroup" aria-label="Poster style">
+      {POSTER_STYLES.map((s) => (
+        <button
+          key={s.id}
+          type="button"
+          role="radio"
+          aria-checked={value === s.id}
+          className={value === s.id ? "is-active" : ""}
+          onClick={() => onChange(s.id)}
+          disabled={disabled}
+        >
+          {s.label}
+        </button>
+      ))}
+    </div>
+  );
+}

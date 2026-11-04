@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { API_URL, AiStatus, Icon, SourceStatus, api, postJson } from "./shared";
+import { API_URL, AiStatus, Icon, SourceStatus, StylePicker, api, postJson, styleLabel } from "./shared";
 import { SystemPanel } from "./system";
 
 type Segmentation = {
@@ -14,7 +14,7 @@ type Segmentation = {
   limitations: string[] | string;
 };
 
-type Graphic = { topic: string; b64?: string | null; url?: string | null; label: string; model: string };
+type Graphic = { topic: string; style?: string; b64?: string | null; url?: string | null; label: string; model: string };
 
 type ValidationReport = {
   rows_received: number;
@@ -123,12 +123,13 @@ function Preparedness({ aiStatus }: { aiStatus: AiStatus | null }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [graphic, setGraphic] = useState<Graphic | null>(null);
+  const [style, setStyle] = useState("surprise");
 
   const generate = async (topic: string) => {
     setBusy(topic);
     setError(null);
     try {
-      setGraphic(await postJson<Graphic>("/api/ai/preparedness-graphic", { topic }));
+      setGraphic(await postJson<Graphic>("/api/ai/preparedness-graphic", { topic, style }));
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -144,8 +145,9 @@ function Preparedness({ aiStatus }: { aiStatus: AiStatus | null }) {
     <section className="ios-card ios-tool" id="tool-poster">
       <span className="ios-card-label">Preparedness posters with Muse Image</span>
       <h3>Make a community illustration</h3>
-      <p className="ios-muted">Generate a simple picture to share with residents before the water rises.</p>
+      <p className="ios-muted">Generate a simple picture to share with residents before the water rises. Pick a style, then a topic; tap again for a new version.</p>
       <AiNote aiStatus={aiStatus} />
+      <StylePicker value={style} onChange={setStyle} disabled={!!busy} />
       <div className="ios-topic-grid">
         {TOPICS.map((t) => (
           <button key={t.id} className={`ios-topic ${graphic?.topic === t.id ? "is-active" : ""}`} onClick={() => generate(t.id)} disabled={!!busy}>
@@ -160,7 +162,7 @@ function Preparedness({ aiStatus }: { aiStatus: AiStatus | null }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`Illustration: ${TOPICS.find((t) => t.id === graphic?.topic)?.title}`} />
           <figcaption>
-            {graphic?.label}
+            {graphic?.label}{graphic?.style ? ` · ${styleLabel(graphic.style)}` : ""}
             <a href={src} download={`hydrosentinel-${graphic?.topic}.${ext === "jpeg" ? "jpg" : ext}`}>Download</a>
           </figcaption>
         </figure>
