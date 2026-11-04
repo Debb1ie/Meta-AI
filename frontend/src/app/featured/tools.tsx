@@ -6,6 +6,9 @@ import { SystemPanel } from "./system";
 
 type Segmentation = {
   annotated_image: string;
+  prompt?: string;
+  requested_prompt?: string;
+  tried_prompts?: string[];
   detections: number;
   segmented_share_of_image: number;
   model: string;
@@ -111,6 +114,15 @@ function PhotoCheck({ aiStatus }: { aiStatus: AiStatus | null }) {
             <span><strong>{result.detections}</strong><small>areas found</small></span>
             <span><strong>{Math.round(result.segmented_share_of_image * 100)}%</strong><small>of the photo</small></span>
           </div>
+          {result.requested_prompt && result.prompt && result.prompt !== result.requested_prompt && result.detections > 0 && (
+            <p className="ios-note">Nothing matched &ldquo;{result.requested_prompt}&rdquo;, so we also looked for &ldquo;{result.prompt}&rdquo; and found it.</p>
+          )}
+          {result.detections === 0 && (
+            <p className="ios-note">
+              No water found{result.tried_prompts?.length ? ` (looked for ${result.tried_prompts.map((p) => `“${p}”`).join(", ")})` : ""}. Try a closer photo
+              where the water fills more of the frame, or describe it differently, e.g. &ldquo;brown water&rdquo;.
+            </p>
+          )}
           {[...result.warnings, ...result.diagnostics.map((d) => d.message)].map((w, i) => <p key={i} className="ios-note">{w}</p>)}
           {limitations.length > 0 && <p className="ios-muted ios-small">{limitations.join(" ")}</p>}
         </div>

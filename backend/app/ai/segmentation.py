@@ -121,15 +121,28 @@ def annotate(img: Image.Image, result) -> dict:
     }
 
 
+# Tried in order when the requested prompt finds nothing. Distant or reflective water in
+# wide street shots is often missed by one phrase and found by another.
+FALLBACK_PROMPTS = ["water", "flooded road"]
+
+
 def analyze_flood_photo(data: bytes, content_type: str, prompt: str = "floodwater") -> dict:
-    prompt = (prompt or "floodwater").strip()[:80]
+    requested = (prompt or "floodwater").strip()[:80]
     img = prepare_image(data, content_type)
-    raw, meta = meta_client.segment_image_raw(to_data_url(img), prompt)
-    result = parse_sam_output(raw, meta["completed"])
-    annotated = annotate(img, result)
+    source = to_data_url(img)
+    tried: list[str] = []
+    for candidate in [requested] + [p for p in FALLBACK_PROMPTS if p.lower() != requested.lower()]:
+        tried.append(candidate)
+        raw, meta = meta_client.segment_image_raw(source, candidate)
+        result = parse_sam_output(raw, meta["completed"])
+        annotated = annotate(img, result)
+        if annotated["objects"]:
+            break
     diagnostics = [{"code": d.code, "message": d.message, "severity": d.severity} for d in result.diagnostics]
     return {
-        "prompt": prompt,
+        "prompt": tried[-1],
+        "requested_prompt": requested,
+        "tried_prompts": tried,
         "model": meta["model"],
         "response_id": meta.get("id"),
         "completed": meta["completed"],

@@ -79,7 +79,7 @@ limiter = _Limiter()
 LIMITS = {
     "analyst": (6, 60, 600),
     "agent": (2, 20, 120),
-    "vision": (3, 20, 150),  # SAM 3.1 segmentation
+    "vision": (5, 20, 150),  # SAM 3.1 segmentation (one request may retry with fallback prompts)
     "image": (3, 15, 100),  # Muse Image generation
     "csv": (10, 100, 1000),  # CSV preview parsing
 }

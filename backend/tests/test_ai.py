@@ -125,3 +125,22 @@ def test_segment_failed_event_raises(monkeypatch, configured):
     monkeypatch.setattr(httpx, "stream", fake_stream(events))
     with pytest.raises(meta_client.MetaAPIError, match="bad image"):
         meta_client.segment_image_raw("data:image/png;base64,AAA", "floodwater")
+
+
+def test_photo_check_falls_back_to_other_prompts(monkeypatch):
+    img = Image.new("RGB", (100, 80), (90, 90, 90))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    mask = np.ones((20, 40), dtype=bool)
+    calls = []
+
+    def fake_segment(data_url, prompt):
+        calls.append(prompt)
+        raw = sam_line(30, 40, 69, 59, 100, 80, mask) if prompt == "water" else ""
+        return raw, {"model": "sam-3.1", "completed": True}
+
+    monkeypatch.setattr(meta_client, "segment_image_raw", fake_segment)
+    out = segmentation.analyze_flood_photo(buf.getvalue(), "image/png", "flood")
+    assert calls == ["flood", "water"]
+    assert out["requested_prompt"] == "flood" and out["prompt"] == "water"
+    assert out["detections"] == 1 and out["segmented_share_of_image"] > 0
