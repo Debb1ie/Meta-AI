@@ -24,8 +24,8 @@ function FitToPoints({ points }: { points: MapPoint[] }) {
 }
 
 export default function RiverMap(props: { points: MapPoint[]; hazards?: MapHazard[]; selectedId?: string | null; onSelect?: (id: string) => void; dark: boolean; height?: number }) {
-  // Carto Voyager provides roads, coastlines and place labels without an API key.
-  const tiles = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png";
+  // OpenStreetMap provides roads, coastlines and place labels without an API key.
+  const tiles = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   const center = props.points[0] ? ([props.points[0].lat, props.points[0].lon] as [number, number]) : ([12.5, 122] as [number, number]);
   return (
     <div className="ios-map" style={{ height: props.height ?? 320 }}>
