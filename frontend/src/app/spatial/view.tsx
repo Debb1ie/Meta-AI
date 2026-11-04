@@ -196,7 +196,7 @@ export function SpatialView() {
           </div>
           <div>
             <b>{km2(highBuilt)} km²</b>
-            <span>of built-up land sits in those zones{data.osm?.riverNames.length ? `, mostly along the ${data.osm.riverNames.slice(0, 2).join(" and ")}` : ""}</span>
+            <span>of built-up land (homes, roads, buildings) sits in those zones</span>
           </div>
           <div>
             <b>{scen ? km2(scen.floodedKm2) : "—"} km²</b>

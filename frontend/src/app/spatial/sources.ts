@@ -180,7 +180,7 @@ export async function loadOsm(g: Grid, presetId: string | null, signal?: AbortSi
 
 export type RainForecast = { grid: Float32Array; todayMm: number; weekMm: number; days: { date: string; mm: number }[] };
 
-/** Open-Meteo daily rain on a 5×5 lattice, inverse-distance weighted onto the grid. */
+/** Open-Meteo daily rain on a 5×5 lattice, interpolated onto the grid. */
 export async function loadRain(g: Grid, signal?: AbortSignal): Promise<RainForecast> {
   const S = 5;
   const pts: [number, number][] = [];
@@ -191,16 +191,14 @@ export async function loadRain(g: Grid, signal?: AbortSignal): Promise<RainForec
   const body = (await res.json()) as { daily: { time: string[]; precipitation_sum: (number | null)[] } }[];
   const week = body.map((r) => r.daily.precipitation_sum.reduce<number>((s, v) => s + (v ?? 0), 0));
   const days = body[0].daily.time.map((date, d) => ({ date, mm: body.reduce((s, r) => s + (r.daily.precipitation_sum[d] ?? 0), 0) / body.length }));
+  // Bilinear between the lattice points (inverse-distance weighting leaves rings around each point).
   const out = new Float32Array(g.n * g.n);
+  const at = (a: number, b: number) => week[Math.min(S - 1, Math.max(0, a)) * S + Math.min(S - 1, Math.max(0, b))];
   for (let j = 0; j < g.n; j++) for (let i = 0; i < g.n; i++) {
-    const lat = cellLat(g, j), lon = cellLon(g, i);
-    let num = 0, den = 0;
-    for (let p = 0; p < pts.length; p++) {
-      const d2 = (pts[p][0] - lat) ** 2 + (pts[p][1] - lon) ** 2 + 1e-6;
-      num += week[p] / d2;
-      den += 1 / d2;
-    }
-    out[j * g.n + i] = num / den;
+    const fa = Math.min(S - 1, Math.max(0, ((g.north - cellLat(g, j)) / (g.north - g.south)) * S - 0.5));
+    const fb = Math.min(S - 1, Math.max(0, ((cellLon(g, i) - g.west) / (g.east - g.west)) * S - 0.5));
+    const a0 = Math.floor(fa), b0 = Math.floor(fb), ta = fa - a0, tb = fb - b0;
+    out[j * g.n + i] = (at(a0, b0) * (1 - tb) + at(a0, b0 + 1) * tb) * (1 - ta) + (at(a0 + 1, b0) * (1 - tb) + at(a0 + 1, b0 + 1) * tb) * ta;
   }
   return { grid: out, todayMm: days[0]?.mm ?? 0, weekMm: week.reduce((s, v) => s + v, 0) / week.length, days };
 }
