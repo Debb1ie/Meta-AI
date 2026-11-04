@@ -1,0 +1,114 @@
+{
+ "computed_on": "2026-11-04",
+ "years": 5,
+ "percentiles": {
+  "advisory": 95.0,
+  "warning": 99.0,
+  "critical": 99.8
+ },
+ "source": "GloFAS v4 river discharge via Open-Meteo Flood API",
+ "rivers": {
+  "ph-cagayan": {
+   "advisory": 3957.2,
+   "warning": 5870.5,
+   "critical": 8008.3,
+   "median": 694.8
+  },
+  "ph-pampanga": {
+   "advisory": 1265.9,
+   "warning": 2076.3,
+   "critical": 2595.5,
+   "median": 123.0
+  },
+  "ph-agno": {
+   "advisory": 1075.5,
+   "warning": 1998.9,
+   "critical": 2673.5,
+   "median": 99.0
+  },
+  "ph-abra": {
+   "advisory": 1276.9,
+   "warning": 2432.7,
+   "critical": 3830.2,
+   "median": 119.8
+  },
+  "ph-pasig-marikina": {
+   "advisory": 586.8,
+   "warning": 951.8,
+   "critical": 1256.0,
+   "median": 81.0
+  },
+  "ph-bicol": {
+   "advisory": 510.1,
+   "warning": 925.8,
+   "critical": 1461.8,
+   "median": 83.1
+  },
+  "ph-agusan": {
+   "advisory": 1947.7,
+   "warning": 3267.1,
+   "critical": 4301.7,
+   "median": 700.5
+  },
+  "ph-mindanao": {
+   "advisory": 2429.8,
+   "warning": 3516.7,
+   "critical": 4429.6,
+   "median": 962.8
+  },
+  "ph-magat": {
+   "advisory": 915.8,
+   "warning": 1612.4,
+   "critical": 2479.5,
+   "median": 160.1
+  },
+  "ph-angat": {
+   "advisory": 210.6,
+   "warning": 370.1,
+   "critical": 487.0,
+   "median": 29.1
+  },
+  "ph-panay": {
+   "advisory": 293.6,
+   "warning": 447.2,
+   "critical": 640.3,
+   "median": 77.2
+  },
+  "ph-jalaur": {
+   "advisory": 235.1,
+   "warning": 366.7,
+   "critical": 607.8,
+   "median": 66.6
+  },
+  "ph-ilog-hilabangan": {
+   "advisory": 239.9,
+   "warning": 433.5,
+   "critical": 677.2,
+   "median": 56.1
+  },
+  "ph-cagayan-de-oro": {
+   "advisory": 358.5,
+   "warning": 506.6,
+   "critical": 732.3,
+   "median": 118.5
+  },
+  "ph-pulangi": {
+   "advisory": 583.5,
+   "warning": 833.6,
+   "critical": 1098.1,
+   "median": 194.0
+  },
+  "ph-tagum-libuganon": {
+   "advisory": 441.3,
+   "warning": 697.8,
+   "critical": 966.5,
+   "median": 124.9
+  },
+  "ph-davao": {
+   "advisory": 255.3,
+   "warning": 400.1,
+   "critical": 572.4,
+   "median": 83.1
+  }
+ }
+}
